@@ -5,6 +5,7 @@ use App\Http\Controllers\BookingController;
 use App\Http\Controllers\OrderTrackingController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminPaymentController;
+use App\Http\Controllers\AuthController;
 use App\Models\Package;
 
 /*
@@ -148,6 +149,11 @@ Route::get('/galeri-klien', function () {
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->group(function () {
+    // Autentikasi Admin
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('admin.login');
+    Route::post('/login', [AuthController::class, 'login'])->name('admin.login.submit');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('admin.logout');
+
     Route::get('/', function () {
         return redirect()->route('admin.dashboard');
     });

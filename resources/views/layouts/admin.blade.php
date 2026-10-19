@@ -88,11 +88,14 @@
 
             <div class="admin-sidebar-footer">
                 <a href="{{ url('/') }}" class="admin-link-client" target="_blank">Lihat situs pelanggan ↗</a>
-                <a href="{{ url('/') }}" class="admin-link-logout">Keluar →</a>
+                <form action="{{ route('admin.logout') }}" method="POST" style="margin: 0;">
+                    @csrf
+                    <button type="submit" class="admin-link-logout" style="background: none; border: none; cursor: pointer; padding: 0; font-family: inherit; font-size: inherit; text-align: left; width: 100%;">Keluar →</button>
+                </form>
                 <hr class="divider">
                 <div class="admin-profile-meta">
-                    <strong class="admin-profile-name">CH · Clara Hayes</strong>
-                    <span class="admin-profile-role">Pemilik studio · Admin</span>
+                    <strong class="admin-profile-name">{{ Auth::check() ? Auth::user()->name : 'CH · Clara Hayes' }}</strong>
+                    <span class="admin-profile-role">{{ Auth::check() ? Auth::user()->email : 'admin@clarahayes.com' }}</span>
                 </div>
             </div>
         </aside>

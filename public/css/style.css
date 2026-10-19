@@ -3836,6 +3836,130 @@ body:has(.gallery-page) .btn--outline-light:hover {
     margin-top: 10px;
 }
 
+/* ==========================================================================
+   ADMIN LOGIN PAGE
+   ========================================================================== */
+.admin-login-body {
+    background-color: #F8F9FA;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #253247;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.admin-login-container {
+    width: 100%;
+    max-width: 460px;
+    padding: 24px 16px;
+}
+
+.admin-login-card {
+    background: #FFFFFF;
+    border: 1px solid #E1E7F0;
+    border-radius: 12px;
+    padding: 36px 32px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.admin-login-header {
+    text-align: center;
+    margin-bottom: 28px;
+}
+
+.admin-login-brand {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    margin-bottom: 20px;
+}
+
+.admin-login-brand .admin-brand-name {
+    font-family: 'Playfair Display', Georgia, serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #253247;
+}
+
+.admin-login-brand .admin-brand-tag {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    color: #747870;
+    margin-top: 2px;
+}
+
+.admin-login-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #253247;
+    margin: 0 0 6px 0;
+}
+
+.admin-login-subtitle {
+    font-size: 13px;
+    color: #747870;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.admin-login-form .admin-form-group {
+    margin-bottom: 18px;
+}
+
+.admin-input-icon-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.admin-input-icon-wrap .admin-input-icon {
+    position: absolute;
+    left: 14px;
+    color: #8C9BB0;
+    pointer-events: none;
+}
+
+.admin-input-icon-wrap .admin-form-input {
+    padding-left: 42px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.admin-login-remember {
+    margin-bottom: 16px;
+}
+
+.admin-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #4A5568;
+    cursor: pointer;
+}
+
+.admin-login-footer {
+    text-align: center;
+    margin-top: 24px;
+    padding-top: 20px;
+    border-top: 1px solid #EDF2F7;
+}
+
+.admin-login-back-link {
+    font-size: 13px;
+    color: #64748B;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.admin-login-back-link:hover {
+    color: #3B5B9A;
+}
+
 
 
 
