@@ -54,8 +54,8 @@
                             name="email" 
                             id="email" 
                             class="admin-form-input @error('email') is-invalid @enderror" 
-                            value="{{ old('email', 'admin@clarahayes.com') }}" 
-                            placeholder="nama@clarahayes.com" 
+                            value="{{ old('email') }}" 
+                            placeholder="Masukkan email Anda" 
                             required 
                             autofocus
                         >
@@ -63,10 +63,7 @@
                 </div>
 
                 <div class="admin-form-group">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-                        <label class="admin-meta-label" for="password" style="margin-bottom: 0;">Kata Sandi *</label>
-                        <span class="text-muted" style="font-size: 12px;">Default: password123</span>
-                    </div>
+                    <label class="admin-meta-label" for="password">Kata Sandi *</label>
                     <div class="admin-input-icon-wrap">
                         <svg class="admin-input-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -77,8 +74,8 @@
                             name="password" 
                             id="password" 
                             class="admin-form-input @error('password') is-invalid @enderror" 
-                            value="password123" 
-                            placeholder="••••••••" 
+                            value="" 
+                            placeholder="Masukkan kata sandi Anda" 
                             required
                         >
                     </div>
@@ -86,7 +83,7 @@
 
                 <div class="admin-login-remember">
                     <label class="admin-checkbox-label">
-                        <input type="checkbox" name="remember" value="1" checked>
+                        <input type="checkbox" name="remember" value="1">
                         <span>Ingat sesi masuk di perangkat ini</span>
                     </label>
                 </div>
