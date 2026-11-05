@@ -113,6 +113,7 @@ img { display: block; }
 }
 .package--featured { border-color: var(--blue); }
 .package__img { width: 100%; height: 200px; object-fit: cover; }
+.package__img[src*="prewedding"] { object-position: center 20%; }
 .package__body {
     position: relative; margin-top: -24px; background: var(--white);
     border-radius: 24px 24px 12px 12px; padding: 24px;
@@ -365,6 +366,9 @@ body:has(.booking-page) .btn--outline-light:hover {
     height: 100%;
     object-fit: cover;
     transition: transform .6s ease;
+}
+.pkg-card__img img[src*="prewedding"] {
+    object-position: center 20%;
 }
 .package-card-select:hover .pkg-card__img img {
     transform: scale(1.05);
@@ -3783,6 +3787,9 @@ body:has(.gallery-page) .btn--outline-light:hover {
     width: 100%;
     height: 180px;
     object-fit: cover;
+}
+.admin-package-mgmt-img[src*="prewedding"] {
+    object-position: center 20%;
 }
 .admin-package-mgmt-body {
     padding: 24px;
