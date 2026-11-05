@@ -96,17 +96,28 @@ img { display: block; }
 .work__cat { font-size: 11px; color: var(--muted); }
 
 /* ===== Paket ===== */
-.packages { display: flex; gap: 24px; align-items: stretch; }
+.packages {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    align-items: stretch;
+}
 .package {
-    flex: 1; position: relative; overflow: hidden;
-    background: var(--white); border: 1px solid var(--line); border-radius: 12px;
+    position: relative;
+    overflow: hidden;
+    background: var(--white);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
 }
 .package--featured { border-color: var(--blue); }
-.package__img { width: 100%; height: 220px; object-fit: cover; }
+.package__img { width: 100%; height: 200px; object-fit: cover; }
 .package__body {
     position: relative; margin-top: -24px; background: var(--white);
-    border-radius: 28px 28px 12px 12px; padding: 32px;
-    display: flex; flex-direction: column; gap: 24px;
+    border-radius: 24px 24px 12px 12px; padding: 24px;
+    display: flex; flex-direction: column; gap: 20px;
+    flex: 1;
 }
 .package__intro { display: flex; flex-direction: column; gap: 14px; }
 .package__label { height: 24px; display: flex; justify-content: space-between; align-items: center; font-size: 9px; font-weight: 500; color: var(--muted); }
@@ -136,7 +147,8 @@ img { display: block; }
     .hero__title { font-size: 48px; }
     .section__intro, .section__note, .footer__top, .hero__details { flex-direction: column; align-items: flex-start; }
     .section__heading, .section__intro .body-text { width: 100% !important; }
-    .masonry, .packages { flex-direction: column; }
+    .masonry { flex-direction: column; }
+    .packages { grid-template-columns: 1fr; }
     .footer__nav { flex-wrap: wrap; gap: 32px; }
 }
 
@@ -323,8 +335,8 @@ body:has(.booking-page) .btn--outline-light:hover {
 /* Grid Pemilihan Paket (Langkah 1) */
 .package-selection-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
 }
 .package-card-select {
     background: var(--white);
@@ -3757,7 +3769,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
    ======================================================== */
 .admin-packages-cards-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 20px;
     align-items: stretch;
 }

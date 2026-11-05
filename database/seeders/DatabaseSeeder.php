@@ -30,73 +30,97 @@ class DatabaseSeeder extends Seeder
         );
 
         // 2. Packages
-        $pkgPotret = Package::updateOrCreate(
-            ['code' => 'PKG-POTRET'],
+        $pkgBirthday = Package::updateOrCreate(
+            ['code' => 'PKG-BIRTHDAY'],
             [
-                'slug' => 'potret-pribadi',
-                'name' => 'Potret Pribadi',
-                'tagline' => 'Untuk branding personal, profil profesional, atau momen personal bermakna.',
-                'description' => 'Sesi personal intimate dengan tata cahaya studio terkurasi untuk profil profesional dan kenangan pribadi.',
+                'slug' => 'birthday',
+                'name' => 'Birthday',
+                'tagline' => 'Rayakan pertambahan usia dengan potret ceria dan penuh warna.',
+                'description' => 'Sesi personal atau pesta ulang tahun dengan dekorasi balon/kue, mengabadikan momen spesial penuh kebahagiaan.',
                 'price' => 1250000,
                 'duration' => '60 menit',
                 'duration_minutes' => 60,
-                'photo_count' => 10,
-                'photo_count_label' => '10 foto retouched',
+                'photo_count' => 15,
+                'photo_count_label' => '15 foto retouched',
                 'features' => [
-                    '1 konsep background pilihan',
-                    '10 foto resolusi tinggi berlisensi pribadi',
-                    'Akses galeri digital selama 60 hari',
-                    'Konsultasi wardrobe & moodboard pra-sesi'
+                    'Properti kue & balon studio',
+                    '15 foto edited resolusi tinggi',
+                    'Akses private digital gallery 60 hari',
+                    'Bebas bawa properti ultah sendiri'
                 ],
-                'badge' => 'Populer',
+                'badge' => 'Ceria',
                 'is_active' => true,
-                'is_featured' => true,
+                'is_featured' => false,
             ]
         );
 
-        $pkgKeluarga = Package::updateOrCreate(
-            ['code' => 'PKG-KELUARGA'],
+        $pkgFamily = Package::updateOrCreate(
+            ['code' => 'PKG-FAMILY'],
             [
-                'slug' => 'cerita-keluarga',
-                'name' => 'Cerita Keluarga',
+                'slug' => 'family-session',
+                'name' => 'Family Session',
                 'tagline' => 'Abadikan kehangatan bersama orang tercinta dalam sesi santai dan natural.',
-                'description' => 'Momen hangat keluarga tanpa kesan kaku dengan arahan pose luwes dan interaksi alami.',
+                'description' => 'Momen hangat keluarga tanpa kesan kaku dengan arahan pose luwes dan interaksi alami antar anggota keluarga.',
                 'price' => 2450000,
                 'duration' => '90 menit',
                 'duration_minutes' => 90,
-                'photo_count' => 20,
-                'photo_count_label' => '20 foto retouched + cetak 10R',
+                'photo_count' => 25,
+                'photo_count_label' => '25 foto retouched + cetak 10R',
                 'features' => [
-                    'Maksimal 6 anggota keluarga',
-                    '2 ganti kostum / latar',
-                    '20 foto edited & file cetak 10R dengan frame kayu',
-                    'Semua file mentah (preview watermarked) via private cloud'
+                    'Maksimal 6-8 anggota keluarga',
+                    '2 konsep latar / ganti kostum',
+                    '25 foto master edited & cetak 10R framed',
+                    'Semua file original via private cloud'
                 ],
-                'badge' => 'Pilihan Favorit',
+                'badge' => 'Terpopuler',
                 'is_active' => true,
                 'is_featured' => true,
             ]
         );
 
-        $pkgEditorial = Package::updateOrCreate(
-            ['code' => 'PKG-EDITORIAL'],
+        $pkgGraduation = Package::updateOrCreate(
+            ['code' => 'PKG-GRADUATION'],
             [
-                'slug' => 'editorial-bisnis',
-                'name' => 'Editorial Bisnis',
-                'tagline' => 'Kebutuhan visual katalog, lookbook brand, atau kampanye korporat profesional.',
-                'description' => 'Produksi visual terarah untuk kebutuhan komersial, brand lookbook, dan portofolio profesional.',
-                'price' => 4500000,
+                'slug' => 'graduation',
+                'name' => 'Graduation',
+                'tagline' => 'Momen perayaan kelulusan dan keberhasilan yang membanggakan.',
+                'description' => 'Sesi toga dan wisuda formal maupun santai bersama orang tua dan sahabat tercinta.',
+                'price' => 1500000,
+                'duration' => '60 menit',
+                'duration_minutes' => 60,
+                'photo_count' => 15,
+                'photo_count_label' => '15 foto retouched + cetak toga',
+                'features' => [
+                    'Sesi toga wisudawan + keluarga inti',
+                    '15 foto edited resolusi tinggi',
+                    '1 cetak pembesar 10RS + frame kayu',
+                    'Free peminjaman properti toga/ijazah mockup'
+                ],
+                'badge' => 'Wisuda',
+                'is_active' => true,
+                'is_featured' => false,
+            ]
+        );
+
+        $pkgPrewedding = Package::updateOrCreate(
+            ['code' => 'PKG-PREWEDDING'],
+            [
+                'slug' => 'prewedding',
+                'name' => 'Prewedding',
+                'tagline' => 'Cerita cinta Anda dalam rangkaian visual sinematik dan puitis.',
+                'description' => 'Sesi pra-nikah terkonsep dengan arahan moodboard terkurasi, tata cahaya sinematik, dan hasil berstandar galeri.',
+                'price' => 4800000,
                 'duration' => '180 menit',
                 'duration_minutes' => 180,
-                'photo_count' => 35,
-                'photo_count_label' => '35 foto retouched + lisensi komersial',
+                'photo_count' => 40,
+                'photo_count_label' => '40 foto master retouched',
                 'features' => [
-                    'Lisensi komersial penuh (digital & cetak)',
-                    'Pengaturan lighting multi-setup & tethering display live',
-                    '35 foto master retouch detail warna brand',
-                    'Termasuk 1 tim asisten studio & kopi kurasi'
+                    'Sesi studio & semi-outdoor',
+                    '3 kali ganti busana/wardrobe',
+                    '40 foto retouched detail warna filmic',
+                    '1 album kolase eksklusif 20x30 cm'
                 ],
-                'badge' => 'Komersial',
+                'badge' => 'Eksklusif',
                 'is_active' => true,
                 'is_featured' => false,
             ]
@@ -131,12 +155,12 @@ class DatabaseSeeder extends Seeder
             [
                 'invoice_number' => 'INV-CH-2026-001',
                 'customer_id' => $customerAyu->id,
-                'package_id' => $pkgPotret->id,
+                'package_id' => $pkgBirthday->id,
                 'customer_name' => $customerAyu->name,
                 'customer_email' => $customerAyu->email,
                 'customer_whatsapp' => $customerAyu->whatsapp,
-                'package_name' => $pkgPotret->name,
-                'total_price' => $pkgPotret->price,
+                'package_name' => $pkgBirthday->name,
+                'total_price' => $pkgBirthday->price,
                 'session_date' => '2026-10-18',
                 'session_time_slot' => '10.00–11.00 WIB',
                 'location' => 'Studio Utama (Studio A)',
@@ -152,12 +176,12 @@ class DatabaseSeeder extends Seeder
             [
                 'invoice_number' => 'INV-CH-2026-002',
                 'customer_id' => $customerBudi->id,
-                'package_id' => $pkgKeluarga->id,
+                'package_id' => $pkgFamily->id,
                 'customer_name' => $customerBudi->name,
                 'customer_email' => $customerBudi->email,
                 'customer_whatsapp' => $customerBudi->whatsapp,
-                'package_name' => $pkgKeluarga->name,
-                'total_price' => $pkgKeluarga->price,
+                'package_name' => $pkgFamily->name,
+                'total_price' => $pkgFamily->price,
                 'session_date' => '2026-10-24',
                 'session_time_slot' => '14.00–15.30 WIB',
                 'location' => 'Studio Keluarga (Studio B)',
@@ -176,7 +200,7 @@ class DatabaseSeeder extends Seeder
                 'sender_name' => 'Ayu Pramesti',
                 'transfer_date' => '2026-10-09',
                 'bank_source' => 'BCA',
-                'nominal' => $pkgPotret->price,
+                'nominal' => $pkgBirthday->price,
                 'sender_notes' => 'Transfer via m-BCA jam 10:15 WIB. Mohon verifikasi.',
                 'proof_file' => 'struk-bca-ch001.jpg',
                 'file_original_name' => 'bukti_transfer_ayu_bca.jpg',
@@ -194,7 +218,7 @@ class DatabaseSeeder extends Seeder
                 'sender_name' => 'Budi Santoso',
                 'transfer_date' => '2026-10-08',
                 'bank_source' => 'Mandiri',
-                'nominal' => $pkgKeluarga->price,
+                'nominal' => $pkgFamily->price,
                 'sender_notes' => 'Transfer lunas penuh paket keluarga.',
                 'proof_file' => 'struk-mandiri-ch002.jpg',
                 'file_original_name' => 'mandiri_transfer_budi.pdf',

@@ -63,7 +63,7 @@
                                 @endforeach
                             </ul>
                             <div class="pkg-card__footer">
-                                @if ($pkg['id'] === 'cerita-keluarga')
+                                @if ($pkg['id'] === 'family-session' || $pkg['id'] === 'cerita-keluarga')
                                     <span class="pkg-tag">PAKET TERPILIH · PILIHAN TERPOPULER</span>
                                 @else
                                     <span class="pkg-tag-muted">KLIK UNTUK MEMILIH</span>

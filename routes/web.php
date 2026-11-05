@@ -35,14 +35,16 @@ Route::get('/', function () {
     $dbPackages = Package::where('is_active', true)->get();
     if ($dbPackages->isNotEmpty()) {
         $imageMap = [
-            'potret-pribadi' => 'paket-1.png',
-            'cerita-keluarga' => 'paket-2.png',
-            'editorial-bisnis' => 'paket-3.png',
+            'birthday' => 'paket-1.png',
+            'family-session' => 'paket-2.png',
+            'graduation' => 'paket-3.png',
+            'prewedding' => 'paket-4.png',
         ];
         $labelMap = [
-            'potret-pribadi' => 'SESI SINGKAT, HASILNYA TETAP BERARTI',
-            'cerita-keluarga' => 'LEBIH BANYAK RUANG UNTUK BERBAGI',
-            'editorial-bisnis' => 'VISUALISASI BISNIS YANG LEBIH BERKESAN',
+            'birthday' => 'RAYAKAN HARI SPESIAL',
+            'family-session' => 'HANGAT & PENUH MAKNA',
+            'graduation' => 'MOMEN KELULUSAN TERBAIK',
+            'prewedding' => 'KISAH CINTA SINEMATIK',
         ];
 
         $packages = $dbPackages->map(function ($pkg) use ($imageMap, $labelMap) {
@@ -50,7 +52,7 @@ Route::get('/', function () {
                 'id' => $pkg->slug,
                 'image' => $imageMap[$pkg->slug] ?? 'paket-1.png',
                 'featured' => (bool)$pkg->is_featured,
-                'label' => $labelMap[$pkg->slug] ?? 'PAKET STUDIO',
+                'label' => $labelMap[$pkg->slug] ?? ($pkg->tagline ?: 'PAKET STUDIO'),
                 'name' => $pkg->name,
                 'description' => $pkg->description,
                 'price' => 'Rp' . number_format($pkg->price, 0, ',', '.'),
@@ -60,51 +62,63 @@ Route::get('/', function () {
     } else {
         $packages = [
             [
+                'id' => 'birthday',
                 'image' => 'paket-1.png',
                 'featured' => false,
-                'label' => 'SESI SINGKAT, HASILNYA TETAP BERARTI',
-                'name' => 'Potret Pribadi',
-                'description' => 'Sesi singkat untuk menangkap diri Anda dengan santai dan alami, cocok untuk profil pribadi atau kenangan pribadi.',
+                'label' => 'RAYAKAN HARI SPESIAL',
+                'name' => 'Birthday',
+                'description' => 'Sesi personal atau pesta ulang tahun dengan dekorasi balon/kue, mengabadikan momen spesial penuh kebahagiaan.',
                 'price' => 'Rp1.250.000',
                 'items' => [
-                    'Sesi 60 menit dengan panduan ringan',
-                    'Satu lokasi pilihan Anda',
-                    '10 foto diedit dengan hati-hati',
-                    'Galeri online pribadi',
-                    'Izin cetak pribadi',
+                    'Properti kue & balon studio',
+                    '15 foto edited resolusi tinggi',
+                    'Akses private digital gallery 60 hari',
+                    'Bebas bawa properti ultah sendiri',
                 ],
             ],
             [
+                'id' => 'family-session',
                 'image' => 'paket-2.png',
                 'featured' => true,
-                'label' => 'LEBIH BANYAK RUANG UNTUK BERBAGI',
-                'name' => 'Cerita Keluarga',
-                'description' => 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
+                'label' => 'HANGAT & PENUH MAKNA',
+                'name' => 'Family Session',
+                'description' => 'Momen hangat keluarga tanpa kesan kaku dengan arahan pose luwes dan interaksi alami antar anggota keluarga.',
                 'price' => 'Rp2.450.000',
                 'items' => [
-                    'Sesi 90 menit dengan narasi yang lebih dalam',
-                    'Dua lokasi dan dua ganti kostum',
-                    '20 foto diedit dengan hati-hati',
-                    'Panggilan perencanaan & panduan styling',
-                    'Galeri pribadi + izin cetak',
+                    'Maksimal 6-8 anggota keluarga',
+                    '2 konsep latar / ganti kostum',
+                    '25 foto master edited & cetak 10R framed',
+                    'Semua file original via private cloud',
                 ],
             ],
             [
-                'id' => 'editorial-bisnis',
+                'id' => 'graduation',
                 'image' => 'paket-3.png',
                 'featured' => false,
-                'label' => 'VISUALISASI BISNIS YANG LEBIH BERKESAN',
-                'name' => 'Editorial Bisnis',
-                'duration' => 180,
-                'location_note' => 'Editorial Bisnis mencakup beberapa lokasi studio & komersial pilihan Anda.',
-                'description' => 'Fotografi yang disusun untuk merek lokal, kreator, dan bisnis yang ingin terlihat otentik.',
-                'price' => 'Rp4.500.000',
+                'label' => 'MOMEN KELULUSAN TERBAIK',
+                'name' => 'Graduation',
+                'description' => 'Sesi toga dan wisuda formal maupun santai bersama orang tua dan sahabat tercinta.',
+                'price' => 'Rp1.500.000',
                 'items' => [
-                    'Sesi setengah hari untuk konten bisnis',
-                    'Beberapa lokasi & ganti kostum',
-                    '35 foto diedit untuk media sosial & iklan',
-                    'Arahan kreatif & moodboard',
-                    'Izin komersial untuk merek',
+                    'Sesi toga wisudawan + keluarga inti',
+                    '15 foto edited resolusi tinggi',
+                    '1 cetak pembesar 10RS + frame kayu',
+                    'Free peminjaman properti toga/ijazah mockup',
+                ],
+            ],
+            [
+                'id' => 'prewedding',
+                'image' => 'paket-4.png',
+                'featured' => false,
+                'label' => 'KISAH CINTA SINEMATIK',
+                'name' => 'Prewedding',
+                'description' => 'Sesi pra-nikah terkonsep dengan arahan moodboard terkurasi, tata cahaya sinematik, dan hasil berstandar galeri.',
+                'price' => 'Rp4.800.000',
+                'items' => [
+                    'Sesi studio & semi-outdoor',
+                    '3 kali ganti busana/wardrobe',
+                    '40 foto retouched detail warna filmic',
+                    '1 album kolase eksklusif 20x30 cm',
                 ],
             ],
         ];
@@ -224,7 +238,8 @@ Route::prefix('admin')->group(function () {
 
         // Paket
         Route::get('/paket', function () {
-            return view('admin.paket');
+            $packages = \App\Models\Package::all();
+            return view('admin.paket', compact('packages'));
         })->name('admin.paket');
 
         // Galeri

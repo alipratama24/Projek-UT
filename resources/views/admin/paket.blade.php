@@ -8,7 +8,7 @@
     <div class="admin-page-header">
         <div class="admin-header-text">
             <h1 class="admin-page-title">Paket layanan</h1>
-            <p class="admin-page-subtitle">3 paket aktif · Harga, cakupan sesi, dan informasi untuk pemesanan baru.</p>
+            <p class="admin-page-subtitle">{{ count($packages) }} paket aktif · Harga, cakupan sesi, dan informasi untuk pemesanan baru.</p>
         </div>
         <button type="button" class="admin-btn-primary" id="btn-open-add-package">
             Tambah paket
@@ -43,109 +43,60 @@
         </div>
     </div>
 
-    {{-- 3 KARTU PAKET LAYANAN (FIGMA 141:3601) --}}
+    {{-- KARTU PAKET LAYANAN --}}
     <div class="admin-packages-cards-grid">
-        {{-- PAKET 1: POTRET PRIBADI --}}
-        <div class="admin-panel admin-package-mgmt-card">
-            <img src="{{ asset('images/paket-1.png') }}" alt="Potret Pribadi" class="admin-package-mgmt-img">
-            <div class="admin-package-mgmt-body">
-                <div class="admin-package-card-header">
-                    <span class="status-indicator-item text-green">● Aktif</span>
-                    <span class="order-code-mono text-muted">PKT-CONTOH-001</span>
-                </div>
-                <h2 class="admin-package-mgmt-title">Potret Pribadi</h2>
-                <p class="admin-package-mgmt-desc">
-                    Sesi singkat untuk menangkap diri Anda dengan santai dan alami, cocok untuk profil pribadi atau kenangan pribadi.
-                </p>
-                <strong class="admin-package-mgmt-price">Rp4.500.000</strong>
-                <span class="admin-package-mgmt-meta">45 menit · 20 foto · Per sesi</span>
+        @php
+            $fallbackImages = [
+                'birthday' => 'paket-1.png',
+                'family-session' => 'paket-2.png',
+                'graduation' => 'paket-3.png',
+                'prewedding' => 'paket-4.png',
+            ];
+        @endphp
+        @forelse ($packages as $pkg)
+            @php
+                $imgName = $fallbackImages[$pkg->slug] ?? ($pkg->image ?: 'paket-1.png');
+                $priceFmt = 'Rp' . number_format($pkg->price, 0, ',', '.');
+                $features = is_array($pkg->features) ? $pkg->features : (json_decode($pkg->features, true) ?? []);
+            @endphp
+            <div class="admin-panel admin-package-mgmt-card">
+                <img src="{{ asset('images/' . $imgName) }}" alt="{{ $pkg->name }}" class="admin-package-mgmt-img">
+                <div class="admin-package-mgmt-body">
+                    <div class="admin-package-card-header">
+                        <span class="status-indicator-item text-green">● {{ $pkg->is_active ? 'Aktif' : 'Nonaktif' }}</span>
+                        <span class="order-code-mono text-muted">{{ $pkg->code }}</span>
+                    </div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:8px;">
+                        <h2 class="admin-package-mgmt-title" style="margin:0;">{{ $pkg->name }}</h2>
+                        @if ($pkg->is_featured)
+                            <span class="badge" style="font-size:10px; padding:2px 8px;">TERPOPULER</span>
+                        @endif
+                    </div>
+                    <p class="admin-package-mgmt-desc">
+                        {{ $pkg->description }}
+                    </p>
+                    <strong class="admin-package-mgmt-price">{{ $priceFmt }}</strong>
+                    <span class="admin-package-mgmt-meta">{{ $pkg->duration_minutes }} menit · {{ $pkg->photo_count }} foto · Per sesi</span>
 
-                <hr class="divider">
+                    <hr class="divider">
 
-                <ul class="features-checklist">
-                    <li><span class="check-mark">✓</span> Sesi 45 menit dengan panduan ringan</li>
-                    <li><span class="check-mark">✓</span> Satu lokasi pilihan Anda</li>
-                    <li><span class="check-mark">✓</span> 20 foto diedit dengan hati-hati</li>
-                    <li><span class="check-mark">✓</span> Galeri online pribadi</li>
-                    <li><span class="check-mark">✓</span> Izin cetak pribadi</li>
-                </ul>
+                    <ul class="features-checklist">
+                        @foreach ($features as $f)
+                            <li><span class="check-mark">✓</span> {{ $f }}</li>
+                        @endforeach
+                    </ul>
 
-                <hr class="divider">
+                    <hr class="divider">
 
-                <div class="admin-btn-group-2">
-                    <button type="button" class="admin-btn-outline flex-1" onclick="alert('Lihat detail paket.')">Detail</button>
-                    <button type="button" class="admin-btn-outline flex-1" onclick="alert('Edit paket.')">Edit paket</button>
-                </div>
-            </div>
-        </div>
-
-        {{-- PAKET 2: CERITA KELUARGA --}}
-        <div class="admin-panel admin-package-mgmt-card">
-            <img src="{{ asset('images/paket-2.png') }}" alt="Cerita Keluarga" class="admin-package-mgmt-img">
-            <div class="admin-package-mgmt-body">
-                <div class="admin-package-card-header">
-                    <span class="status-indicator-item text-green">● Aktif</span>
-                    <span class="order-code-mono text-muted">PKT-CONTOH-002</span>
-                </div>
-                <h2 class="admin-package-mgmt-title">Cerita Keluarga</h2>
-                <p class="admin-package-mgmt-desc">
-                    Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.
-                </p>
-                <strong class="admin-package-mgmt-price">Rp9.500.000</strong>
-                <span class="admin-package-mgmt-meta">90 menit · 50 foto · Per sesi</span>
-
-                <hr class="divider">
-
-                <ul class="features-checklist">
-                    <li><span class="check-mark">✓</span> Sesi 90 menit dengan narasi yang lebih dalam</li>
-                    <li><span class="check-mark">✓</span> Dua lokasi dan dua ganti kostum</li>
-                    <li><span class="check-mark">✓</span> 50 foto diedit dengan hati-hati</li>
-                    <li><span class="check-mark">✓</span> Panggilan perencanaan & panduan styling</li>
-                    <li><span class="check-mark">✓</span> Galeri pribadi + izin cetak</li>
-                </ul>
-
-                <hr class="divider">
-
-                <div class="admin-btn-group-2">
-                    <button type="button" class="admin-btn-outline flex-1" onclick="alert('Lihat detail paket.')">Detail</button>
-                    <button type="button" class="admin-btn-outline flex-1" onclick="alert('Edit paket.')">Edit paket</button>
+                    <div class="admin-btn-group-2">
+                        <button type="button" class="admin-btn-outline flex-1" onclick="alert('Detail paket {{ $pkg->name }}.')">Detail</button>
+                        <button type="button" class="admin-btn-outline flex-1" onclick="alert('Edit paket {{ $pkg->name }}.')">Edit paket</button>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        {{-- PAKET 3: EDITORIAL BISNIS --}}
-        <div class="admin-panel admin-package-mgmt-card">
-            <img src="{{ asset('images/paket-3.png') }}" alt="Editorial Bisnis" class="admin-package-mgmt-img">
-            <div class="admin-package-mgmt-body">
-                <div class="admin-package-card-header">
-                    <span class="status-indicator-item text-green">● Aktif</span>
-                    <span class="order-code-mono text-muted">PKT-CONTOH-003</span>
-                </div>
-                <h2 class="admin-package-mgmt-title">Editorial Bisnis</h2>
-                <p class="admin-package-mgmt-desc">
-                    Fotografi yang disusun untuk merek lokal, kreator, dan bisnis yang ingin terlihat otentik.
-                </p>
-                <strong class="admin-package-mgmt-price">Rp18.000.000</strong>
-                <span class="admin-package-mgmt-meta">Setengah hari · 80 foto · Per sesi</span>
-
-                <hr class="divider">
-
-                <ul class="features-checklist">
-                    <li><span class="check-mark">✓</span> Sesi setengah hari untuk konten bisnis</li>
-                    <li><span class="check-mark">✓</span> Beberapa lokasi & ganti kostum</li>
-                    <li><span class="check-mark">✓</span> 80 foto diedit untuk media sosial & iklan</li>
-                    <li><span class="check-mark">✓</span> Arahan kreatif & moodboard</li>
-                    <li><span class="check-mark">✓</span> Izin komersial untuk merek</li>
-                </ul>
-
-                <hr class="divider">
-
-                <div class="admin-btn-group-2">
-                    <button type="button" class="admin-btn-outline flex-1" onclick="alert('Lihat detail paket.')">Detail</button>
-                    <button type="button" class="admin-btn-outline flex-1" onclick="alert('Edit paket.')">Edit paket</button>
-                </div>
-            </div>
-        </div>
+        @empty
+            <p class="text-muted">Belum ada paket layanan.</p>
+        @endforelse
     </div>
 
     {{-- FEEDBACK NOTICE (FIGMA 141:3680) --}}

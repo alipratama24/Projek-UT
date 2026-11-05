@@ -21,9 +21,17 @@ class BookingController extends Controller
 
         $packages = $dbPackages->map(function ($pkg) {
             $imageMap = [
-                'potret-pribadi' => 'paket-1.png',
-                'cerita-keluarga' => 'paket-2.png',
-                'editorial-bisnis' => 'paket-3.png',
+                'birthday' => 'paket-1.png',
+                'family-session' => 'paket-2.png',
+                'graduation' => 'paket-3.png',
+                'prewedding' => 'paket-4.png',
+            ];
+
+            $locationNotes = [
+                'birthday' => 'Sesi indoor studio dengan dekorasi pesta ulang tahun terkurasi.',
+                'family-session' => 'Family session mencakup 2 konsep background studio atau 1 lokasi rumah.',
+                'graduation' => 'Sesi studio foto toga bersama keluarga inti dan teman terdekat.',
+                'prewedding' => 'Sesi studio eksklusif & semi-outdoor terarah dengan moodboard puitis.',
             ];
 
             return [
@@ -34,11 +42,7 @@ class BookingController extends Controller
                 'raw_price' => $pkg->price,
                 'duration' => $pkg->duration_minutes ?? 60,
                 'duration_label' => $pkg->duration,
-                'location_note' => $pkg->slug === 'cerita-keluarga'
-                    ? 'Cerita Keluarga mencakup dua lokasi. Alamat dan lokasi akhir dibahas saat perencanaan.'
-                    : ($pkg->slug === 'editorial-bisnis'
-                        ? 'Editorial Bisnis mencakup beberapa lokasi studio & komersial pilihan Anda.'
-                        : 'Potret Pribadi mencakup satu lokasi pilihan Anda.'),
+                'location_note' => $locationNotes[$pkg->slug] ?? ($pkg->tagline ?: 'Satu lokasi pilihan Anda.'),
                 'image' => $imageMap[$pkg->slug] ?? 'paket-1.png',
                 'desc' => $pkg->description,
                 'items' => is_array($pkg->features) ? $pkg->features : [],
@@ -49,60 +53,73 @@ class BookingController extends Controller
         if (empty($packages)) {
             $packages = [
                 [
-                    'id' => 'potret-pribadi',
-                    'name' => 'Potret Pribadi',
-                    'price' => 'Rp4.500.000',
-                    'raw_price' => 4500000,
-                    'duration' => 45,
-                    'duration_label' => '45 menit',
-                    'location_note' => 'Potret Pribadi mencakup satu lokasi pilihan Anda.',
+                    'id' => 'birthday',
+                    'name' => 'Birthday',
+                    'price' => 'Rp1.250.000',
+                    'raw_price' => 1250000,
+                    'duration' => 60,
+                    'duration_label' => '60 menit',
+                    'location_note' => 'Sesi indoor studio dengan dekorasi pesta ulang tahun terkurasi.',
                     'image' => 'paket-1.png',
                     'items' => [
-                        'Sesi 45 menit dengan panduan ringan',
-                        'Satu lokasi pilihan Anda',
-                        '20 foto diedit dengan hati-hati',
-                        'Galeri online pribadi',
-                        'Izin cetak pribadi',
+                        'Properti kue & balon studio',
+                        '15 foto edited resolusi tinggi',
+                        'Akses private digital gallery 60 hari',
+                        'Bebas bawa properti ultah sendiri',
                     ],
                 ],
                 [
-                    'id' => 'cerita-keluarga',
-                    'name' => 'Cerita Keluarga',
-                    'price' => 'Rp9.500.000',
-                    'raw_price' => 9500000,
+                    'id' => 'family-session',
+                    'name' => 'Family Session',
+                    'price' => 'Rp2.450.000',
+                    'raw_price' => 2450000,
                     'duration' => 90,
                     'duration_label' => '90 menit',
-                    'location_note' => 'Cerita Keluarga mencakup dua lokasi. Alamat dan lokasi akhir dibahas saat perencanaan.',
+                    'location_note' => 'Family session mencakup 2 konsep background studio atau 1 lokasi rumah.',
                     'image' => 'paket-2.png',
                     'items' => [
-                        'Sesi 90 menit dengan narasi yang lebih dalam',
-                        'Dua lokasi dan dua ganti kostum',
-                        '50 foto diedit dengan hati-hati',
-                        'Panggilan perencanaan & panduan styling',
-                        'Galeri pribadi + izin cetak',
+                        'Maksimal 6-8 anggota keluarga',
+                        '2 konsep latar / ganti kostum',
+                        '25 foto master edited & cetak 10R framed',
+                        'Semua file original via private cloud',
                     ],
                 ],
                 [
-                    'id' => 'editorial-bisnis',
-                    'name' => 'Editorial Bisnis',
-                    'price' => 'Rp18.000.000',
-                    'raw_price' => 18000000,
-                    'duration' => 240,
-                    'duration_label' => '240 menit',
-                    'location_note' => 'Editorial Bisnis mencakup beberapa lokasi studio & komersial pilihan Anda.',
+                    'id' => 'graduation',
+                    'name' => 'Graduation',
+                    'price' => 'Rp1.500.000',
+                    'raw_price' => 1500000,
+                    'duration' => 60,
+                    'duration_label' => '60 menit',
+                    'location_note' => 'Sesi studio foto toga bersama keluarga inti dan teman terdekat.',
                     'image' => 'paket-3.png',
                     'items' => [
-                        'Sesi setengah hari untuk konten bisnis',
-                        'Beberapa lokasi & ganti kostum',
-                        '80 foto diedit untuk media sosial & iklan',
-                        'Arahan kreatif & moodboard',
-                        'Izin komersial untuk merek',
+                        'Sesi toga wisudawan + keluarga inti',
+                        '15 foto edited resolusi tinggi',
+                        '1 cetak pembesar 10RS + frame kayu',
+                        'Free peminjaman properti toga/ijazah mockup',
+                    ],
+                ],
+                [
+                    'id' => 'prewedding',
+                    'name' => 'Prewedding',
+                    'price' => 'Rp4.800.000',
+                    'raw_price' => 4800000,
+                    'duration' => 180,
+                    'duration_label' => '180 menit',
+                    'location_note' => 'Sesi studio eksklusif & semi-outdoor terarah dengan moodboard puitis.',
+                    'image' => 'paket-4.png',
+                    'items' => [
+                        'Sesi studio & semi-outdoor',
+                        '3 kali ganti busana/wardrobe',
+                        '40 foto retouched detail warna filmic',
+                        '1 album kolase eksklusif 20x30 cm',
                     ],
                 ],
             ];
         }
 
-        $selectedPackageId = $request->query('package', 'cerita-keluarga');
+        $selectedPackageId = $request->query('package', 'family-session');
 
         return view('pemesanan', compact('packages', 'selectedPackageId'));
     }
@@ -127,13 +144,21 @@ class BookingController extends Controller
         $package = Package::where('slug', $packageSlug)->first();
 
         $imageMap = [
-            'potret-pribadi' => 'paket-1.png',
-            'cerita-keluarga' => 'paket-2.png',
-            'editorial-bisnis' => 'paket-3.png',
+            'birthday' => 'paket-1.png',
+            'family-session' => 'paket-2.png',
+            'graduation' => 'paket-3.png',
+            'prewedding' => 'paket-4.png',
+        ];
+
+        $locationHints = [
+            'birthday' => 'Sesi studio indoor dekorasi pesta ulang tahun terkurasi.',
+            'family-session' => 'Family session mencakup 2 konsep background studio atau 1 lokasi rumah.',
+            'graduation' => 'Sesi studio foto toga bersama keluarga inti dan teman terdekat.',
+            'prewedding' => 'Sesi studio eksklusif & semi-outdoor terarah dengan moodboard puitis.',
         ];
 
         $packageName = $package ? $package->name : ucwords(str_replace('-', ' ', $packageSlug));
-        $packagePrice = $package ? $package->price : 9500000;
+        $packagePrice = $package ? $package->price : 2450000;
         $packagePriceFormatted = 'Rp' . number_format($packagePrice, 0, ',', '.');
         $packageImage = $imageMap[$packageSlug] ?? 'paket-2.png';
         $packageDesc = $package ? $package->description : 'Sesi foto terarah studio.';
@@ -142,11 +167,7 @@ class BookingController extends Controller
             'File resolusi tinggi via cloud pribadi',
             'Izin cetak pribadi'
         ];
-        $lokasiHint = $packageSlug === 'cerita-keluarga'
-            ? 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.'
-            : ($packageSlug === 'editorial-bisnis'
-                ? 'Beberapa lokasi studio & komersial pilihan Anda.'
-                : 'Satu lokasi pilihan Anda.');
+        $lokasiHint = $locationHints[$packageSlug] ?? ($package ? $package->tagline : 'Satu lokasi pilihan Anda.');
 
         // 1. Simpan atau perbarui Customer
         $customer = Customer::updateOrCreate(
