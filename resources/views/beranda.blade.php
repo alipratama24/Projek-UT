@@ -4,7 +4,7 @@
 
 @section('content')
     {{-- HERO --}}
-    <section class="hero" style="background-image: linear-gradient(90deg, rgba(18,32,24,.8) 0%, rgba(18,32,24,0) 75%), url('{{ asset('images/hero.png') }}')">
+    <section class="hero" style="background-image: linear-gradient(90deg, rgba(18,32,24,.82) 0%, rgba(18,32,24,0.15) 70%), url('{{ asset('images/hero.jpg') }}?v={{ time() }}')">
         <div class="hero__message">
             <span class="eyebrow eyebrow--light">FOTOGRAFI LIFESTYLE &amp; PORTRAIT INDONESIA</span>
             <h1 class="hero__title">Cerita Anda,<br>di setiap momen.</h1>
