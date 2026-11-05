@@ -3951,7 +3951,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
 }
 
 .admin-login-brand__logo {
-    height: 80px;
+    height: 48px;
     width: auto;
     object-fit: contain;
     margin-bottom: 6px;
