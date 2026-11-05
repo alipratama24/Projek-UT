@@ -124,8 +124,8 @@ img { display: block; }
 .badge { background: var(--badge); color: var(--blue); padding: 5px 8px; border-radius: 100px; }
 .package__name { font-size: 25px; font-weight: 400; }
 .package__desc { min-height: 48px; }
-.package__price { display: flex; align-items: baseline; gap: 9px; }
-.package__price span { font-size: 48px; }
+.package__price { display: flex; align-items: baseline; gap: 8px; }
+.package__price span { font-size: 28px; font-weight: 500; }
 .package__price small { font-size: 12px; color: var(--muted); }
 .package__list { list-style: none; display: flex; flex-direction: column; gap: 17px; flex: 1; }
 .package__list li { display: flex; align-items: center; gap: 10px; font-size: 13px; line-height: 1.4; }
@@ -417,8 +417,8 @@ body:has(.booking-page) .btn--outline-light:hover {
     gap: 8px;
 }
 .pkg-card__price .price-val {
-    font-size: 28px;
-    font-weight: 400;
+    font-size: 24px;
+    font-weight: 500;
     color: var(--ink);
 }
 .pkg-card__price .price-unit {
