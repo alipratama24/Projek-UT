@@ -14,7 +14,7 @@
         <aside class="admin-sidebar">
             <div class="admin-brand">
                 <a href="{{ route('admin.dashboard') }}" style="text-decoration: none; display: flex; flex-direction: column; gap: 4px;">
-                    <img src="{{ asset('images/logo-dark.png') }}" alt="naro capture" class="admin-brand__logo">
+                    <img src="{{ asset('images/logo-dark.png') }}?v={{ time() }}" alt="naro capture" class="admin-brand__logo">
                     <span class="admin-brand-tag">STUDIO FOTOGRAFI / BACKOFFICE</span>
                 </a>
             </div>

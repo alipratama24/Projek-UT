@@ -2569,7 +2569,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
     gap: 6px;
 }
 .admin-brand__logo {
-    height: 62px;
+    height: 48px;
     width: auto;
     object-fit: contain;
     align-self: flex-start;
