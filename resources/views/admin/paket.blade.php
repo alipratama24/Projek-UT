@@ -47,10 +47,10 @@
     <div class="admin-packages-cards-grid">
         @php
             $fallbackImages = [
-                'birthday' => 'paket-1.png',
-                'family-session' => 'paket-2.png',
-                'graduation' => 'paket-3.png',
-                'prewedding' => 'paket-4.png',
+                'birthday' => 'paket-birthday.jpg',
+                'family-session' => 'paket-family.jpg',
+                'graduation' => 'paket-graduation.jpg',
+                'prewedding' => 'paket-prewedding.jpg',
             ];
         @endphp
         @forelse ($packages as $pkg)

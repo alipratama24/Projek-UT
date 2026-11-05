@@ -35,6 +35,7 @@ class DatabaseSeeder extends Seeder
             [
                 'slug' => 'birthday',
                 'name' => 'Birthday',
+                'image' => 'paket-birthday.jpg',
                 'tagline' => 'Rayakan pertambahan usia dengan potret ceria dan penuh warna.',
                 'description' => 'Sesi personal atau pesta ulang tahun dengan dekorasi balon/kue, mengabadikan momen spesial penuh kebahagiaan.',
                 'price' => 1250000,
@@ -59,6 +60,7 @@ class DatabaseSeeder extends Seeder
             [
                 'slug' => 'family-session',
                 'name' => 'Family Session',
+                'image' => 'paket-family.jpg',
                 'tagline' => 'Abadikan kehangatan bersama orang tercinta dalam sesi santai dan natural.',
                 'description' => 'Momen hangat keluarga tanpa kesan kaku dengan arahan pose luwes dan interaksi alami antar anggota keluarga.',
                 'price' => 2450000,
@@ -83,6 +85,7 @@ class DatabaseSeeder extends Seeder
             [
                 'slug' => 'graduation',
                 'name' => 'Graduation',
+                'image' => 'paket-graduation.jpg',
                 'tagline' => 'Momen perayaan kelulusan dan keberhasilan yang membanggakan.',
                 'description' => 'Sesi toga dan wisuda formal maupun santai bersama orang tua dan sahabat tercinta.',
                 'price' => 1500000,
@@ -107,6 +110,7 @@ class DatabaseSeeder extends Seeder
             [
                 'slug' => 'prewedding',
                 'name' => 'Prewedding',
+                'image' => 'paket-prewedding.jpg',
                 'tagline' => 'Cerita cinta Anda dalam rangkaian visual sinematik dan puitis.',
                 'description' => 'Sesi pra-nikah terkonsep dengan arahan moodboard terkurasi, tata cahaya sinematik, dan hasil berstandar galeri.',
                 'price' => 4800000,

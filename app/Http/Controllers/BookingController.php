@@ -21,10 +21,10 @@ class BookingController extends Controller
 
         $packages = $dbPackages->map(function ($pkg) {
             $imageMap = [
-                'birthday' => 'paket-1.png',
-                'family-session' => 'paket-2.png',
-                'graduation' => 'paket-3.png',
-                'prewedding' => 'paket-4.png',
+                'birthday' => 'paket-birthday.jpg',
+                'family-session' => 'paket-family.jpg',
+                'graduation' => 'paket-graduation.jpg',
+                'prewedding' => 'paket-prewedding.jpg',
             ];
 
             $locationNotes = [
@@ -60,7 +60,7 @@ class BookingController extends Controller
                     'duration' => 60,
                     'duration_label' => '60 menit',
                     'location_note' => 'Sesi indoor studio dengan dekorasi pesta ulang tahun terkurasi.',
-                    'image' => 'paket-1.png',
+                    'image' => 'paket-birthday.jpg',
                     'items' => [
                         'Properti kue & balon studio',
                         '15 foto edited resolusi tinggi',
@@ -76,7 +76,7 @@ class BookingController extends Controller
                     'duration' => 90,
                     'duration_label' => '90 menit',
                     'location_note' => 'Family session mencakup 2 konsep background studio atau 1 lokasi rumah.',
-                    'image' => 'paket-2.png',
+                    'image' => 'paket-family.jpg',
                     'items' => [
                         'Maksimal 6-8 anggota keluarga',
                         '2 konsep latar / ganti kostum',
@@ -92,7 +92,7 @@ class BookingController extends Controller
                     'duration' => 60,
                     'duration_label' => '60 menit',
                     'location_note' => 'Sesi studio foto toga bersama keluarga inti dan teman terdekat.',
-                    'image' => 'paket-3.png',
+                    'image' => 'paket-graduation.jpg',
                     'items' => [
                         'Sesi toga wisudawan + keluarga inti',
                         '15 foto edited resolusi tinggi',
@@ -108,7 +108,7 @@ class BookingController extends Controller
                     'duration' => 180,
                     'duration_label' => '180 menit',
                     'location_note' => 'Sesi studio eksklusif & semi-outdoor terarah dengan moodboard puitis.',
-                    'image' => 'paket-4.png',
+                    'image' => 'paket-prewedding.jpg',
                     'items' => [
                         'Sesi studio & semi-outdoor',
                         '3 kali ganti busana/wardrobe',
@@ -144,10 +144,10 @@ class BookingController extends Controller
         $package = Package::where('slug', $packageSlug)->first();
 
         $imageMap = [
-            'birthday' => 'paket-1.png',
-            'family-session' => 'paket-2.png',
-            'graduation' => 'paket-3.png',
-            'prewedding' => 'paket-4.png',
+            'birthday' => 'paket-birthday.jpg',
+            'family-session' => 'paket-family.jpg',
+            'graduation' => 'paket-graduation.jpg',
+            'prewedding' => 'paket-prewedding.jpg',
         ];
 
         $locationHints = [
