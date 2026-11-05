@@ -18,8 +18,8 @@
     {{-- NAVIGASI --}}
     <header class="nav">
         <a href="{{ url('/') }}" class="brand brand--light">
-            <span class="brand__name">clara hayes.</span>
-            <span class="brand__tag">PHOTOGRAPHY STUDIO</span>
+            <img src="{{ asset('images/logo-light.png') }}" alt="naro capture" class="brand__logo-img brand__logo-img--light">
+            <img src="{{ asset('images/logo-dark.png') }}" alt="naro capture" class="brand__logo-img brand__logo-img--dark">
         </a>
         <nav class="nav__links">
             <a href="{{ url('/#karya') }}" class="nav__link">Karya terbaru</a>
@@ -36,8 +36,7 @@
     <footer class="footer">
         <div class="footer__top">
             <div class="footer__identity">
-                <span class="brand__name">clara hayes.</span>
-                <span class="brand__tag muted">STUDIO FOTOGRAFI</span>
+                <img src="{{ asset('images/logo-dark.png') }}" alt="naro capture" style="height: 40px; width: auto; object-fit: contain; margin-bottom: 12px; align-self: flex-start;">
                 <p class="body-text">Fotografi otentik dan penuh hati untuk orang-orang yang ingin cerita mereka diceritakan dengan baik.</p>
             </div>
             <div class="footer__nav">

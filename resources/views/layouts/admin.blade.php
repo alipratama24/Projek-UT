@@ -13,8 +13,10 @@
         {{-- SIDEBAR STUDIO (FIGMA 141:867) --}}
         <aside class="admin-sidebar">
             <div class="admin-brand">
-                <span class="admin-brand-name">clara hayes.</span>
-                <span class="admin-brand-tag">STUDIO FOTOGRAFI / BACKOFFICE</span>
+                <a href="{{ route('admin.dashboard') }}" style="text-decoration: none; display: flex; flex-direction: column; gap: 4px;">
+                    <img src="{{ asset('images/logo-dark.png') }}" alt="naro capture" class="admin-brand__logo">
+                    <span class="admin-brand-tag">STUDIO FOTOGRAFI / BACKOFFICE</span>
+                </a>
             </div>
 
             <nav class="admin-nav-menu">

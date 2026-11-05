@@ -14,7 +14,7 @@
             {{-- BRAND HEADER --}}
             <div class="admin-login-header">
                 <a href="{{ url('/') }}" class="admin-login-brand">
-                    <span class="admin-brand-name">clara hayes.</span>
+                    <img src="{{ asset('images/logo-dark.png') }}" alt="naro capture" class="admin-login-brand__logo">
                     <span class="admin-brand-tag">STUDIO FOTOGRAFI / BACKOFFICE</span>
                 </a>
                 <h1 class="admin-login-title">Masuk ke Backoffice</h1>

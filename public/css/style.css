@@ -55,7 +55,10 @@ img { display: block; }
     display: flex; justify-content: space-between; align-items: center;
     background: rgba(0, 0, 0, .32); backdrop-filter: blur(4px);
 }
-.brand { display: flex; flex-direction: column; gap: 4px; }
+.brand { display: flex; flex-direction: column; gap: 4px; text-decoration: none; }
+.brand__logo-img { height: 42px; width: auto; object-fit: contain; display: block; }
+.brand__logo-img--light { display: block; }
+.brand__logo-img--dark { display: none; }
 .brand__name { font-size: 23px; font-weight: 500; }
 .brand__tag { font-size: 9px; }
 .brand--light { color: var(--white); }
@@ -229,6 +232,8 @@ img { display: block; }
     border-bottom: 1px solid var(--line);
 }
 body:has(.booking-page) .brand--light { color: var(--ink); }
+body:has(.booking-page) .brand__logo-img--light { display: none; }
+body:has(.booking-page) .brand__logo-img--dark { display: block; }
 body:has(.booking-page) .nav__link { color: var(--ink); }
 body:has(.booking-page) .btn--outline-light {
     border-color: var(--blue);
@@ -831,6 +836,8 @@ body:has(.checkout-page) .nav {
     border-bottom: 1px solid var(--line);
 }
 body:has(.checkout-page) .brand--light { color: var(--ink); }
+body:has(.checkout-page) .brand__logo-img--light { display: none; }
+body:has(.checkout-page) .brand__logo-img--dark { display: block; }
 body:has(.checkout-page) .nav__link { color: var(--ink); }
 body:has(.checkout-page) .btn--outline-light {
     border-color: var(--blue);
@@ -1372,6 +1379,8 @@ body:has(.confirmation-page) .nav {
     border-bottom: 1px solid var(--line);
 }
 body:has(.confirmation-page) .brand--light { color: var(--ink); }
+body:has(.confirmation-page) .brand__logo-img--light { display: none; }
+body:has(.confirmation-page) .brand__logo-img--dark { display: block; }
 body:has(.confirmation-page) .nav__link { color: var(--ink); }
 body:has(.confirmation-page) .btn--outline-light {
     border-color: var(--blue);
@@ -2102,6 +2111,8 @@ body:has(.tracking-page) .nav {
     border-bottom: 1px solid var(--line);
 }
 body:has(.tracking-page) .brand--light { color: var(--ink); }
+body:has(.tracking-page) .brand__logo-img--light { display: none; }
+body:has(.tracking-page) .brand__logo-img--dark { display: block; }
 body:has(.tracking-page) .nav__link { color: var(--ink); }
 body:has(.tracking-page) .btn--outline-light {
     border-color: var(--blue);
@@ -2372,6 +2383,8 @@ body:has(.gallery-page) .nav {
     border-bottom: 1px solid var(--line);
 }
 body:has(.gallery-page) .brand--light { color: var(--ink); }
+body:has(.gallery-page) .brand__logo-img--light { display: none; }
+body:has(.gallery-page) .brand__logo-img--dark { display: block; }
 body:has(.gallery-page) .nav__link { color: var(--ink); }
 body:has(.gallery-page) .btn--outline-light {
     border-color: var(--blue);
@@ -2538,6 +2551,13 @@ body:has(.gallery-page) .btn--outline-light:hover {
     display: flex;
     flex-direction: column;
     gap: 6px;
+}
+.admin-brand__logo {
+    height: 38px;
+    width: auto;
+    object-fit: contain;
+    align-self: flex-start;
+    margin-bottom: 2px;
 }
 .admin-brand-name {
     font-size: 24px;
@@ -3909,6 +3929,13 @@ body:has(.gallery-page) .btn--outline-light:hover {
     align-items: center;
     text-decoration: none;
     margin-bottom: 20px;
+}
+
+.admin-login-brand__logo {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    margin-bottom: 6px;
 }
 
 .admin-login-brand .admin-brand-name {
