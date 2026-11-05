@@ -49,7 +49,7 @@
         {{-- Sampul dan Rincian Galeri --}}
         <div class="gallery-header-cover-grid">
             <div class="gallery-cover-img-wrap">
-                <img src="{{ asset('images/work-1.png') }}" alt="Foto Sampul Keluarga" class="gallery-cover-img">
+                <img src="{{ asset('images/work-1.jpg') }}" alt="Foto Sampul Keluarga" class="gallery-cover-img">
             </div>
 
             <div class="gallery-meta-card">
@@ -109,12 +109,12 @@
         <div class="gallery-grid-3">
             @php
                 $photos = [
-                    ['img' => 'work-1.png', 'title' => 'Keluarga — 01'],
-                    ['img' => 'work-2.png', 'title' => 'Keluarga — 02'],
-                    ['img' => 'work-3.png', 'title' => 'Keluarga — 03'],
-                    ['img' => 'work-4.png', 'title' => 'Keluarga — 04'],
-                    ['img' => 'work-5.png', 'title' => 'Keluarga — 05'],
-                    ['img' => 'work-6.png', 'title' => 'Keluarga — 06'],
+                    ['img' => 'work-1.jpg', 'title' => 'Keluarga — 01'],
+                    ['img' => 'work-2.jpg', 'title' => 'Keluarga — 02'],
+                    ['img' => 'work-3.jpg', 'title' => 'Keluarga — 03'],
+                    ['img' => 'work-4.jpg', 'title' => 'Keluarga — 04'],
+                    ['img' => 'work-5.jpg', 'title' => 'Keluarga — 05'],
+                    ['img' => 'work-6.jpg', 'title' => 'Keluarga — 06'],
                 ];
             @endphp
 

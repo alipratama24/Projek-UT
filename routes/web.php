@@ -50,7 +50,7 @@ Route::get('/', function () {
         $packages = $dbPackages->map(function ($pkg) use ($imageMap, $labelMap) {
             return [
                 'id' => $pkg->slug,
-                'image' => $imageMap[$pkg->slug] ?? 'paket-1.png',
+                'image' => $imageMap[$pkg->slug] ?? ($pkg->image ?: 'paket-birthday.jpg'),
                 'featured' => (bool)$pkg->is_featured,
                 'label' => $labelMap[$pkg->slug] ?? ($pkg->tagline ?: 'PAKET STUDIO'),
                 'name' => $pkg->name,

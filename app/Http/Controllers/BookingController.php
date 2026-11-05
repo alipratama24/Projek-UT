@@ -43,7 +43,7 @@ class BookingController extends Controller
                 'duration' => $pkg->duration_minutes ?? 60,
                 'duration_label' => $pkg->duration,
                 'location_note' => $locationNotes[$pkg->slug] ?? ($pkg->tagline ?: 'Satu lokasi pilihan Anda.'),
-                'image' => $imageMap[$pkg->slug] ?? 'paket-1.png',
+                'image' => $imageMap[$pkg->slug] ?? ($pkg->image ?: 'paket-birthday.jpg'),
                 'desc' => $pkg->description,
                 'items' => is_array($pkg->features) ? $pkg->features : [],
             ];
@@ -160,7 +160,7 @@ class BookingController extends Controller
         $packageName = $package ? $package->name : ucwords(str_replace('-', ' ', $packageSlug));
         $packagePrice = $package ? $package->price : 2450000;
         $packagePriceFormatted = 'Rp' . number_format($packagePrice, 0, ',', '.');
-        $packageImage = $imageMap[$packageSlug] ?? 'paket-2.png';
+        $packageImage = $imageMap[$packageSlug] ?? ($package && $package->image ? $package->image : 'paket-family.jpg');
         $packageDesc = $package ? $package->description : 'Sesi foto terarah studio.';
         $packageItems = $package && is_array($package->features) ? $package->features : [
             'Sesi foto studio terkurasi',
@@ -254,7 +254,7 @@ class BookingController extends Controller
                 'invoice_number' => $defaultOrder->invoice_number,
                 'package_name' => $defaultOrder->package_name,
                 'package_price' => 'Rp' . number_format($defaultOrder->total_price, 0, ',', '.'),
-                'package_image' => 'paket-2.png',
+                'package_image' => 'paket-family.jpg',
                 'package_desc' => 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
                 'lokasi_hint' => 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
                 'package_items' => [
@@ -294,7 +294,7 @@ class BookingController extends Controller
                     'package_name' => $order->package_name,
                     'package_price' => 'Rp' . number_format($order->total_price, 0, ',', '.'),
                     'package_duration' => 90,
-                    'package_image' => 'paket-2.png',
+                    'package_image' => 'paket-family.jpg',
                     'package_desc' => 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
                     'lokasi_hint' => 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
                     'package_items' => [

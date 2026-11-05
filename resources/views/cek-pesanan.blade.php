@@ -307,7 +307,7 @@
 
                         {{-- Paket Terpilih --}}
                         <div class="mini-package-row">
-                            <img src="{{ asset('images/' . ($data['package_image'] ?? 'paket-2.png')) }}" alt="{{ $data['package_name'] }}" class="mini-package-img">
+                            <img src="{{ asset('images/' . ($data['package_image'] ?? 'paket-family.jpg')) }}" alt="{{ $data['package_name'] }}" class="mini-package-img">
                             <div class="mini-package-info">
                                 <span class="eyebrow">PAKET TERPILIH</span>
                                 <h4 class="mini-package-name">{{ $data['package_name'] }}</h4>

@@ -55,7 +55,7 @@
         @endphp
         @forelse ($packages as $pkg)
             @php
-                $imgName = $fallbackImages[$pkg->slug] ?? ($pkg->image ?: 'paket-1.png');
+                $imgName = $fallbackImages[$pkg->slug] ?? ($pkg->image ?: 'paket-birthday.jpg');
                 $priceFmt = 'Rp' . number_format($pkg->price, 0, ',', '.');
                 $features = is_array($pkg->features) ? $pkg->features : (json_decode($pkg->features, true) ?? []);
             @endphp

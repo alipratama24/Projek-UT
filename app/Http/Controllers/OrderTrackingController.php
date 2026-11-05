@@ -71,7 +71,7 @@ class OrderTrackingController extends Controller
             'invoice_number' => $order ? $order->invoice_number : 'INV-CH-2026-001',
             'package_name' => $order ? $order->package_name : 'Cerita Keluarga',
             'package_price' => $order ? 'Rp' . number_format($order->total_price, 0, ',', '.') : 'Rp9.500.000',
-            'package_image' => 'paket-2.png',
+            'package_image' => 'paket-family.jpg',
             'package_duration' => 90,
             'package_desc' => 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
             'lokasi_hint' => 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
