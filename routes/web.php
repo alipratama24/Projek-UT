@@ -15,19 +15,19 @@ use App\Models\Package;
 */
 
 Route::get('/', function () {
-    // Karya terbaru: 3 kolom (masonry), sesuai Figma
+    // Karya terbaru: 3 kolom (masonry) dengan foto studio asli
     $columns = [
         [
-            ['image' => 'work-1.png', 'height' => 440, 'title' => 'Minggu Pagi Bersama', 'category' => 'Keluarga'],
-            ['image' => 'work-2.png', 'height' => 260, 'title' => 'Di Rumah Bersama', 'category' => 'Pasangan'],
+            ['image' => 'work-1.jpg', 'height' => 440, 'title' => 'Ulang Tahun Pertama Si Kecil', 'category' => 'Ulang Tahun & Keluarga'],
+            ['image' => 'work-2.jpg', 'height' => 260, 'title' => 'Tawa Bersama Mannan', 'category' => 'Ulang Tahun'],
         ],
         [
-            ['image' => 'work-3.png', 'height' => 300, 'title' => 'Seni Sehari-Hari', 'category' => 'Bisnis Kreatif'],
-            ['image' => 'work-4.png', 'height' => 400, 'title' => 'Sore di Taman', 'category' => 'Potret'],
+            ['image' => 'work-3.jpg', 'height' => 280, 'title' => 'Pesta Cerita Rumah Uma', 'category' => 'Keluarga & Anak'],
+            ['image' => 'work-4.jpg', 'height' => 420, 'title' => 'Melangkah Bersama di Taman', 'category' => 'Family Outdoor'],
         ],
         [
-            ['image' => 'work-5.png', 'height' => 400, 'title' => 'Di Mana Kita Berlabuh', 'category' => 'Pasangan'],
-            ['image' => 'work-6.png', 'height' => 300, 'title' => 'Ritual Pagi', 'category' => 'Lifestyle'],
+            ['image' => 'work-5.jpg', 'height' => 300, 'title' => 'Dekorasi Panggung Ulang Tahun Ghaizka', 'category' => 'Event & Dekorasi'],
+            ['image' => 'work-6.jpg', 'height' => 400, 'title' => 'Langkah Kebanggaan Wisuda', 'category' => 'Wisuda & Potret'],
         ],
     ];
 
