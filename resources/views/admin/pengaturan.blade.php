@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Pengaturan Studio — Clara Hayes Photography')
+@section('title', 'Pengaturan Studio — naro capture')
 @section('breadcrumb', 'Pengaturan / Pengaturan studio')
 
 @section('content')
@@ -33,18 +33,18 @@
                     <div class="admin-meta-row-2">
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">Nama studio *</label>
-                            <input type="text" name="studio_name" class="admin-form-input" value="Clara Hayes Photography" required>
+                            <input type="text" name="studio_name" class="admin-form-input" value="naro capture" required>
                         </div>
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">Nama admin *</label>
-                            <input type="text" name="admin_name" class="admin-form-input" value="Clara Hayes" required>
+                            <input type="text" name="admin_name" class="admin-form-input" value="naro capture" required>
                         </div>
                     </div>
 
                     <div class="admin-meta-row-2">
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">Email studio *</label>
-                            <input type="email" name="studio_email" class="admin-form-input" value="hello@clarahayes.studio" required>
+                            <input type="email" name="studio_email" class="admin-form-input" value="hello@narocapture.com" required>
                         </div>
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">WhatsApp studio</label>
@@ -271,7 +271,7 @@
                     <hr class="divider">
 
                     <span class="admin-meta-hint">
-                        Perubahan terakhir: Clara · 6 Okt 2026 · 09.20 WIB
+                        Perubahan terakhir: Admin · 6 Okt 2026 · 09.20 WIB
                     </span>
                 </div>
             </div>
@@ -289,7 +289,7 @@
 
     {{-- FOOTER COPYRIGHT (FIGMA 141:4850) --}}
     <div class="admin-footer-copyright">
-        © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+        © 2026 naro capture · Data ilustrasi · Akses terbatas admin
     </div>
 @endsection
 

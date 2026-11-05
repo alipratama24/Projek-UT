@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Admin Backoffice — Clara Hayes Photography')</title>
+    <title>@yield('title', 'Admin Backoffice — naro capture')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -96,8 +96,8 @@
                 </form>
                 <hr class="divider">
                 <div class="admin-profile-meta">
-                    <strong class="admin-profile-name">{{ Auth::check() ? Auth::user()->name : 'CH · Clara Hayes' }}</strong>
-                    <span class="admin-profile-role">{{ Auth::check() ? Auth::user()->email : 'admin@clarahayes.com' }}</span>
+                    <strong class="admin-profile-name">{{ Auth::check() ? Auth::user()->name : 'NC · naro capture' }}</strong>
+                    <span class="admin-profile-role">{{ Auth::check() ? Auth::user()->email : 'admin@narocapture.com' }}</span>
                 </div>
             </div>
         </aside>
@@ -106,7 +106,7 @@
         <div class="admin-main">
             {{-- TOPBAR (FIGMA 141:880) --}}
             <header class="admin-topbar">
-                <span class="admin-breadcrumb">Studio / @yield('breadcrumb', 'Dashboard / Selamat pagi, Clara')</span>
+                <span class="admin-breadcrumb">Studio / @yield('breadcrumb', 'Dashboard / Selamat pagi, Admin')</span>
                 <div class="admin-topbar-right">
                     <span class="admin-location-time">WIB · Jakarta</span>
                     <button type="button" class="admin-btn-bell" title="Pemberitahuan">

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Bukti Pembayaran ' . $payment['id'] . ' — Clara Hayes Photography')
+@section('title', 'Detail Bukti Pembayaran ' . $payment['id'] . ' — naro capture')
 @section('breadcrumb', 'Pembayaran / Detail bukti pembayaran')
 
 @section('content')
@@ -148,7 +148,7 @@
 
                 <div class="admin-review-history-steps">
                     <p class="review-step-text">5 Okt, 16.10 · {{ $payment['sender'] }} mengirim bukti dan data transfer.</p>
-                    <p class="review-step-text">6 Okt, 09.15 · Clara membuka bukti untuk tinjauan.</p>
+                    <p class="review-step-text">6 Okt, 09.15 · Admin membuka bukti untuk tinjauan.</p>
                 </div>
 
                 <hr class="divider">
@@ -300,7 +300,7 @@
 
     {{-- FOOTER COPYRIGHT (FIGMA 141:1865) --}}
     <div class="admin-footer-copyright">
-        © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+        © 2026 naro capture · Data ilustrasi · Akses terbatas admin
     </div>
 
     <script>

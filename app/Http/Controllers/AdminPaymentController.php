@@ -76,7 +76,7 @@ class AdminPaymentController extends Controller
                 'transfer_date' => $transferDate,
                 'bank_source' => $paymentModel->bank_source ?? 'Bank BCA',
                 'nominal' => 'Rp' . number_format($paymentModel->nominal, 0, ',', '.'),
-                'sender_note' => $paymentModel->sender_notes ?? 'Pembayaran sesi studio Clara Hayes.',
+                'sender_note' => $paymentModel->sender_notes ?? 'Pembayaran sesi studio naro capture.',
                 'submitted_at' => $submittedAt,
                 'invoice' => $order ? $order->invoice_number : 'INV-CH-2026-001',
                 'order_code' => $order ? $order->order_code : 'CH-CONTOH-001',

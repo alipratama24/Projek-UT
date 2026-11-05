@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Clara Hayes Photography')</title>
+    <title>@yield('title', 'naro capture')</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
@@ -49,7 +49,7 @@
                 </div>
                 <div class="footer__col" style="width:180px">
                     <span class="eyebrow">HUBUNGI</span>
-                    <a href="mailto:hello@clarahayes.studio" class="icon-item"><img src="{{ asset('images/icon-email.svg') }}" alt="">hello@clarahayes.studio</a>
+                    <a href="mailto:hello@narocapture.com" class="icon-item"><img src="{{ asset('images/icon-email.svg') }}" alt="">hello@narocapture.com</a>
                     <span class="icon-item"><img src="{{ asset('images/icon-phone.svg') }}" alt="">Hubungi studio untuk informasi</span>
                     <span class="icon-item"><img src="{{ asset('images/icon-location.svg') }}" alt="">Jakarta, Indonesia</span>
                 </div>
@@ -63,7 +63,7 @@
         </div>
         <hr class="divider">
         <div class="footer__bottom">
-            <span>© {{ date('Y') }} CLARA HAYES PHOTOGRAPHY</span>
+            <span>© {{ date('Y') }} NARO CAPTURE</span>
             <div class="footer__legal">
                 <a href="#">PRIVASI</a>
                 <a href="#">SYARAT</a>

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Galeri Foto — Clara Hayes Photography')
+@section('title', 'Galeri Foto — naro capture')
 
 @section('content')
 <main class="gallery-page">
@@ -165,10 +165,10 @@
                 <img src="{{ asset('images/icon-email.svg') }}" alt="" width="24" height="24" style="flex-shrink:0;">
                 <div>
                     <h3 class="subheader-title font-20">Ada yang ingin Anda tanyakan?</h3>
-                    <p class="body-text font-13">Hubungi hello@clarahayes.studio dan sertakan kode pesanan Anda. Jangan kirim PIN, kata sandi, atau kode OTP.</p>
+                    <p class="body-text font-13">Hubungi hello@narocapture.com dan sertakan kode pesanan Anda. Jangan kirim PIN, kata sandi, atau kode OTP.</p>
                 </div>
             </div>
-            <a href="mailto:hello@clarahayes.studio" class="btn btn--outline" style="white-space: nowrap;">
+            <a href="mailto:hello@narocapture.com" class="btn btn--outline" style="white-space: nowrap;">
                 Hubungi Studio
             </a>
         </div>

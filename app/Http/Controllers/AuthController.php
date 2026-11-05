@@ -53,7 +53,7 @@ class AuthController extends Controller
 
             return redirect()->intended(route('admin.dashboard'))
                 ->withCookie($cookie)
-                ->with('success', 'Selamat datang kembali di Backoffice Clara Hayes.');
+                ->with('success', 'Selamat datang kembali di Backoffice naro capture.');
         }
 
         return back()->withErrors([

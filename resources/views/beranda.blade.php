@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Beranda — Clara Hayes Photography')
+@section('title', 'Beranda — naro capture')
 
 @section('content')
     {{-- HERO --}}
@@ -94,7 +94,7 @@
 
         <div class="section__note" style="align-items:center">
             <span style="line-height:1.6">Setiap sesi dilengkapi dengan sentuhan yang lebih personal. Galeri biasanya dikirim dalam waktu dua minggu.</span>
-            <a href="mailto:hello@clarahayes.studio" class="link-blue">Butuh paket khusus?&nbsp; hello@clarahayes.studio ↗</a>
+            <a href="mailto:hello@narocapture.com" class="link-blue">Butuh paket khusus?&nbsp; hello@narocapture.com ↗</a>
         </div>
     </section>
 @endsection

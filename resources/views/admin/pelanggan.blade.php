@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Pelanggan — Clara Hayes Photography')
+@section('title', 'Pelanggan — naro capture')
 @section('breadcrumb', 'Pelanggan / Pelanggan')
 
 @section('content')
@@ -189,7 +189,7 @@
 
     {{-- FOOTER COPYRIGHT (FIGMA 141:3153) --}}
     <div class="admin-footer-copyright">
-        © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+        © 2026 naro capture · Data ilustrasi · Akses terbatas admin
     </div>
 
     <script>

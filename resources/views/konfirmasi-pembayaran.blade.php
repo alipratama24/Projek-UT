@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Konfirmasi Pembayaran — Clara Hayes Photography')
+@section('title', 'Konfirmasi Pembayaran — naro capture')
 
 @section('content')
 <main class="confirmation-page">
@@ -145,7 +145,7 @@
                         Lihat Status Pesanan @include('partials.arrow')
                     </a>
                     <p class="proof-footer-note">
-                        Clara akan memberi kabar melalui email atau WhatsApp setelah pemeriksaan bukti dan jadwal.
+                        Tim kami akan memberi kabar melalui email atau WhatsApp setelah pemeriksaan bukti dan jadwal.
                     </p>
                 </div>
             </div>
@@ -180,7 +180,7 @@
                                 <div class="bank-card">
                                     <div class="bank-card__top">
                                         <span class="bank-badge bank-bca">BCA</span>
-                                        <span class="bank-owner">a.n. Clara Hayes Studio</span>
+                                        <span class="bank-owner">a.n. naro capture Studio</span>
                                     </div>
                                     <div class="bank-card__number-wrap">
                                         <span class="bank-number" id="bcaNumber">8735 0912 344</span>
@@ -194,7 +194,7 @@
                                 <div class="bank-card">
                                     <div class="bank-card__top">
                                         <span class="bank-badge bank-mandiri">MANDIRI</span>
-                                        <span class="bank-owner">a.n. Clara Hayes Studio</span>
+                                        <span class="bank-owner">a.n. naro capture Studio</span>
                                     </div>
                                     <div class="bank-card__number-wrap">
                                         <span class="bank-number" id="mandiriNumber">137 00 2841 9920</span>
@@ -221,8 +221,8 @@
                             <div class="qris-display-card">
                                 <div class="qris-qr-frame">
                                     <div class="qris-header-tag">QRIS · National QR Standard</div>
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020101021226500014ID.LINKAJA.WWW01189360091200000000015204581253033605802ID5919CLARA+HAYES+STUDIO6007JAKARTA61051219062070703A016304C2E4" alt="QRIS Clara Hayes Studio" class="qris-code-img">
-                                    <span class="qris-merchant-name">CLARA HAYES STUDIO</span>
+                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020101021226500014ID.LINKAJA.WWW01189360091200000000015204581253033605802ID5919NARO+CAPTURE+STUDIO6007JAKARTA61051219062070703A016304C2E4" alt="QRIS naro capture Studio" class="qris-code-img">
+                                    <span class="qris-merchant-name">NARO CAPTURE STUDIO</span>
                                     <span class="qris-merchant-nns">NMID: ID1020039281749</span>
                                 </div>
                                 <div class="qris-instructions">
@@ -231,7 +231,7 @@
                                         <li>Buka aplikasi m-Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, OVO, Dana, ShopeePay).</li>
                                         <li>Pilih menu <strong>Pindai / Scan QRIS</strong>.</li>
                                         <li>Arahkan kamera ke kode QR di samping.</li>
-                                        <li>Pastikan nama merchant: <strong>CLARA HAYES STUDIO</strong> dan nominal transfer: <strong>{{ $data['package_price'] }}</strong>.</li>
+                                        <li>Pastikan nama merchant: <strong>NARO CAPTURE STUDIO</strong> dan nominal transfer: <strong>{{ $data['package_price'] }}</strong>.</li>
                                         <li>Selesaikan pembayaran dan simpan tangkapan layar (screenshot) bukti transfer.</li>
                                     </ol>
                                 </div>
@@ -373,7 +373,7 @@
                         <img src="{{ asset('images/icon-info.svg') }}" alt="" class="notice-icon">
                         <div>
                             <strong class="notice-title">Pembayaran akan ditinjau oleh studio</strong>
-                            <p>Mengunggah struk tidak otomatis mengonfirmasi pembayaran atau pemesanan. Clara akan memeriksa bukti dan ketersediaan jadwal, lalu menghubungi Anda melalui email atau WhatsApp.</p>
+                            <p>Mengunggah struk tidak otomatis mengonfirmasi pembayaran atau pemesanan. Tim admin akan memeriksa bukti dan ketersediaan jadwal, lalu menghubungi Anda melalui email atau WhatsApp.</p>
                         </div>
                     </div>
 
@@ -508,9 +508,9 @@
             <div class="checkout-box help-box">
                 <h4 class="subheader-title">Belum melakukan transfer?</h4>
                 <p class="body-text font-13">Gunakan instruksi pembayaran resmi dari studio sebelum mengirim struk. Jika belum menerimanya atau ada kendala, hubungi kami.</p>
-                <a href="mailto:hello@clarahayes.studio" class="icon-item link-blue">
+                <a href="mailto:hello@narocapture.com" class="icon-item link-blue">
                     <img src="{{ asset('images/icon-email.svg') }}" alt="" width="18" height="18">
-                    hello@clarahayes.studio
+                    hello@narocapture.com
                 </a>
             </div>
         </div>

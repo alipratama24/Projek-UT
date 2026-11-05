@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Pemesanan — Clara Hayes Photography')
+@section('title', 'Pemesanan — naro capture')
 
 @section('content')
 <main class="booking-page">
@@ -296,7 +296,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="catatan" class="form-label">Catatan untuk Clara (opsional)</label>
+                            <label for="catatan" class="form-label">Catatan untuk Studio / Fotografer (opsional)</label>
                             <textarea id="catatan" name="catatan" rows="4" class="form-control form-textarea" placeholder="Ceritakan konsep atau preferensi suasana yang Anda inginkan...">{{ old('catatan') }}</textarea>
                         </div>
                     </div>
@@ -315,7 +315,7 @@
                         </button>
 
                         <p class="form-disclaimer-text">
-                            Setelah permintaan dikirim, kode pesanan dibuat dan ditampilkan di checkout serta dikirim ke email atau WhatsApp Anda. Simpan kode untuk mengecek status. Clara akan meninjau ketersediaan sebelum mengonfirmasi sesi.
+                            Setelah permintaan dikirim, kode pesanan dibuat dan ditampilkan di checkout serta dikirim ke email atau WhatsApp Anda. Simpan kode untuk mengecek status. Tim naro capture akan meninjau ketersediaan sebelum mengonfirmasi sesi.
                         </p>
                     </div>
                 </div>

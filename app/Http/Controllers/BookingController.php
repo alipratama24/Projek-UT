@@ -205,7 +205,7 @@ class BookingController extends Controller
             'total_price' => $packagePrice,
             'session_date' => $sessionDateSql,
             'session_time_slot' => $rawTimeSlot,
-            'location' => $validated['lokasi'] ?? 'Studio Utama Clara Hayes',
+            'location' => $validated['lokasi'] ?? 'Studio Utama naro capture',
             'customer_notes' => $validated['catatan'] ?? null,
             'session_status' => 'Permintaan',
             'payment_status' => 'Belum dibayar',

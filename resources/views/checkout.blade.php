@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Ringkasan & Invoice — Clara Hayes Photography')
+@section('title', 'Ringkasan & Invoice — naro capture')
 
 @section('content')
 <main class="checkout-page">
@@ -138,7 +138,7 @@
 
                 @if(!empty($data['catatan']))
                     <div class="info-group">
-                        <span class="detail-label">Catatan untuk Clara</span>
+                        <span class="detail-label">Catatan untuk Studio / Fotografer</span>
                         <p class="body-text">{{ $data['catatan'] }}</p>
                     </div>
                 @endif
@@ -147,7 +147,7 @@
             {{-- Info Notice Box --}}
             <div class="summary-notice">
                 <img src="{{ asset('images/icon-info.svg') }}" alt="" class="notice-icon">
-                <p>Sesi ini masih berupa permintaan jadwal. Clara akan meninjau ketersediaan dan menghubungi Anda melalui email atau WhatsApp sebelum mengonfirmasi sesi.</p>
+                <p>Sesi ini masih berupa permintaan jadwal. Tim naro capture akan meninjau ketersediaan dan menghubungi Anda melalui email atau WhatsApp sebelum mengonfirmasi sesi.</p>
             </div>
 
             <div class="card-footer-link">
@@ -166,8 +166,8 @@
 
             <div class="invoice-meta">
                 <span class="invoice-number">Nomor contoh: {{ $data['invoice_number'] }}</span>
-                <strong class="studio-name">Clara Hayes Photography</strong>
-                <span class="studio-email">hello@clarahayes.studio</span>
+                <strong class="studio-name">naro capture</strong>
+                <span class="studio-email">hello@narocapture.com</span>
             </div>
 
             <div class="invoice-order-ref">

@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Detail Pesanan ' . $order['code'] . ' — Clara Hayes Photography')
+@section('title', 'Detail Pesanan ' . $order['code'] . ' — naro capture')
 @section('breadcrumb', 'Pesanan / Detail pesanan')
 
 @section('content')
@@ -95,7 +95,7 @@
                     <label class="internal-note-label">Catatan internal</label>
                     <p class="internal-note-text">{{ $order['internal_note'] }}</p>
                 </div>
-                <span class="admin-meta-hint">Hanya admin · Clara, 6 Okt 2026 09.10 WIB</span>
+                <span class="admin-meta-hint">Hanya admin · Admin, 6 Okt 2026 09.10 WIB</span>
             </div>
         </div>
 
@@ -351,7 +351,7 @@
 
     {{-- FOOTER COPYRIGHT (FIGMA 141:1199) --}}
     <div class="admin-footer-copyright">
-        © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+        © 2026 naro capture · Data ilustrasi · Akses terbatas admin
     </div>
 
     <script>

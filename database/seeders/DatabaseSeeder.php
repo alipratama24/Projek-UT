@@ -22,9 +22,9 @@ class DatabaseSeeder extends Seeder
     {
         // 1. Admin User
         User::updateOrCreate(
-            ['email' => 'admin@clarahayes.com'],
+            ['email' => 'admin@narocapture.com'],
             [
-                'name' => 'Clara Hayes Studio Admin',
+                'name' => 'naro capture Admin',
                 'password' => Hash::make('password123'),
             ]
         );

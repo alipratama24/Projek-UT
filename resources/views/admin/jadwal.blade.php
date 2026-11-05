@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Kalender Studio — Clara Hayes Photography')
+@section('title', 'Kalender Studio — naro capture')
 @section('breadcrumb', 'Jadwal / Kalender studio')
 
 @section('content')
@@ -366,7 +366,7 @@
 
     {{-- FOOTER COPYRIGHT (FIGMA 141:2557) --}}
     <div class="admin-footer-copyright">
-        © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+        © 2026 naro capture · Data ilustrasi · Akses terbatas admin
     </div>
 
     <script>

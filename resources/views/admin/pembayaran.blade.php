@@ -1,6 +1,6 @@
 @extends('layouts.admin')
 
-@section('title', 'Pembayaran — Clara Hayes Photography')
+@section('title', 'Pembayaran — naro capture')
 @section('breadcrumb', 'Pembayaran / Pembayaran')
 
 @section('content')
@@ -219,7 +219,7 @@
 
             <div class="admin-meta-field">
                 <label class="admin-meta-label">Catatan kasir / administrasi</label>
-                <textarea class="admin-form-input" rows="3">Diterima langsung di studio oleh Clara Hayes.</textarea>
+                <textarea class="admin-form-input" rows="3">Diterima langsung di studio oleh naro capture.</textarea>
             </div>
 
             <div class="admin-alert-box alert-success-box">
@@ -242,7 +242,7 @@
 
     {{-- FOOTER COPYRIGHT (FIGMA 141:1780) --}}
     <div class="admin-footer-copyright">
-        © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+        © 2026 naro capture · Data ilustrasi · Akses terbatas admin
     </div>
 
     <script>

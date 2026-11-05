@@ -1,13 +1,13 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard — Admin Backoffice Clara Hayes')
-@section('breadcrumb', 'Dashboard / Selamat pagi, Clara')
+@section('title', 'Dashboard — Admin Backoffice naro capture')
+@section('breadcrumb', 'Dashboard / Selamat pagi, Admin')
 
 @section('content')
 {{-- PENGANTAR HALAMAN (FIGMA 141:885) --}}
 <div class="admin-page-header">
     <div>
-        <h1 class="admin-page-title">Selamat pagi, Clara</h1>
+        <h1 class="admin-page-title">Selamat pagi, Admin</h1>
         <p class="admin-page-subtitle">Selasa, 6 Oktober 2026 · Semua kebutuhan studio, dalam satu ruang.</p>
     </div>
     <a href="{{ url('/admin/pesanan') }}" class="btn btn--fill btn-sm" style="background:#3B5B9A; color:#FFF; height:40px; padding:0 22px;">
@@ -170,7 +170,7 @@
                 <span class="admin-activity-time">● 09.20</span>
                 <div class="admin-activity-content">
                     <strong class="admin-activity-title">Catatan pelanggan diperbarui</strong>
-                    <span class="admin-activity-meta">Clara · Nadia Putri</span>
+                    <span class="admin-activity-meta">Admin · Nadia Putri</span>
                 </div>
             </div>
 
@@ -178,7 +178,7 @@
                 <span class="admin-activity-time">● 08.45</span>
                 <div class="admin-activity-content">
                     <strong class="admin-activity-title">Galeri disimpan sebagai draf</strong>
-                    <span class="admin-activity-meta">Clara · Potret Nadia</span>
+                    <span class="admin-activity-meta">Admin · Potret Nadia</span>
                 </div>
             </div>
 
@@ -198,7 +198,7 @@
 </div>
 
 <p class="admin-footer-copyright">
-    © 2026 Clara Hayes Photography · Data ilustrasi · Akses terbatas admin
+    © 2026 naro capture · Data ilustrasi · Akses terbatas admin
 </p>
 @endsection
 
