@@ -51,12 +51,12 @@ img { display: block; }
 /* ===== Navigasi ===== */
 .nav {
     position: absolute; top: 0; left: 0; right: 0; z-index: 10;
-    height: 88px; padding: 0 72px;
+    height: 98px; padding: 0 72px;
     display: flex; justify-content: space-between; align-items: center;
     background: rgba(0, 0, 0, .32); backdrop-filter: blur(4px);
 }
 .brand { display: flex; flex-direction: column; gap: 4px; text-decoration: none; }
-.brand__logo-img { height: 58px; width: auto; object-fit: contain; display: block; }
+.brand__logo-img { height: 76px; width: auto; object-fit: contain; display: block; }
 .brand__logo-img--light { display: block; }
 .brand__logo-img--dark { display: none; }
 .brand__name { font-size: 23px; font-weight: 500; }
@@ -221,7 +221,7 @@ img { display: block; }
 .booking-page {
     background-color: var(--tint);
     min-height: 100vh;
-    padding-top: 88px;
+    padding-top: 98px;
 }
 
 /* Navbar adaptasi untuk background terang jika bukan di hero */
@@ -2553,7 +2553,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
     gap: 6px;
 }
 .admin-brand__logo {
-    height: 48px;
+    height: 62px;
     width: auto;
     object-fit: contain;
     align-self: flex-start;
@@ -3932,7 +3932,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
 }
 
 .admin-login-brand__logo {
-    height: 64px;
+    height: 80px;
     width: auto;
     object-fit: contain;
     margin-bottom: 6px;
