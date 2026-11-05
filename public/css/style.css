@@ -56,7 +56,7 @@ img { display: block; }
     background: rgba(0, 0, 0, .32); backdrop-filter: blur(4px);
 }
 .brand { display: flex; flex-direction: column; gap: 4px; text-decoration: none; }
-.brand__logo-img { height: 42px; width: auto; object-fit: contain; display: block; }
+.brand__logo-img { height: 58px; width: auto; object-fit: contain; display: block; }
 .brand__logo-img--light { display: block; }
 .brand__logo-img--dark { display: none; }
 .brand__name { font-size: 23px; font-weight: 500; }
@@ -2553,7 +2553,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
     gap: 6px;
 }
 .admin-brand__logo {
-    height: 38px;
+    height: 48px;
     width: auto;
     object-fit: contain;
     align-self: flex-start;
@@ -3932,7 +3932,7 @@ body:has(.gallery-page) .btn--outline-light:hover {
 }
 
 .admin-login-brand__logo {
-    height: 48px;
+    height: 64px;
     width: auto;
     object-fit: contain;
     margin-bottom: 6px;
