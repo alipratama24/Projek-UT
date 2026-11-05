@@ -18,8 +18,8 @@
     {{-- NAVIGASI --}}
     <header class="nav">
         <a href="{{ url('/') }}" class="brand brand--light">
-            <img src="{{ asset('images/logo-light.png') }}" alt="naro capture" class="brand__logo-img brand__logo-img--light">
-            <img src="{{ asset('images/logo-dark.png') }}" alt="naro capture" class="brand__logo-img brand__logo-img--dark">
+            <img src="{{ asset('images/logo-light.png') }}?v={{ time() }}" alt="naro capture" class="brand__logo-img brand__logo-img--light">
+            <img src="{{ asset('images/logo-dark.png') }}?v={{ time() }}" alt="naro capture" class="brand__logo-img brand__logo-img--dark">
         </a>
         <nav class="nav__links">
             <a href="{{ url('/#karya') }}" class="nav__link">Karya terbaru</a>
