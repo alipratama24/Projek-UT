@@ -92,8 +92,8 @@
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">Metode pembayaran</label>
                             <select class="admin-form-input">
-                                <option selected>Transfer / QRIS · Setelah konfigurasi</option>
-                                <option>Tunai di Lokasi</option>
+                                <option selected>Transfer Bank (BCA & Mandiri)</option>
+                                <option>Tunai di Kasir Studio</option>
                             </select>
                         </div>
                         <div class="admin-meta-field">
@@ -125,28 +125,15 @@
                         </label>
                     </div>
 
-                    {{-- ALERT DATA RESMI BELUM TERSEDIA --}}
-                    <div class="admin-alert-box alert-warning-box">
-                        <strong class="admin-alert-title text-gold">Instruksi resmi belum tersedia</strong>
-                        <p class="admin-alert-desc text-gold">
-                            Bank, nomor rekening, nama penerima, dan QRIS harus diisi serta ditinjau studio sebelum ditampilkan kepada pelanggan.
-                        </p>
-                    </div>
-
                     <div class="admin-meta-row-2">
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">Bank / nama penerima resmi</label>
-                            <input type="text" class="admin-form-input" value="Belum dikonfigurasi">
+                            <input type="text" class="admin-form-input" value="BCA & Mandiri a.n. naro capture Studio">
                         </div>
                         <div class="admin-meta-field">
                             <label class="admin-meta-label">Nomor rekening resmi</label>
-                            <input type="text" class="admin-form-input" value="Belum dikonfigurasi">
+                            <input type="text" class="admin-form-input font-mono" value="BCA: 8735 0912 344 · Mandiri: 137 00 2841 9920">
                         </div>
-                    </div>
-
-                    <div class="admin-meta-field">
-                        <label class="admin-meta-label">Berkas QRIS resmi</label>
-                        <input type="text" class="admin-form-input" value="Belum diunggah · Pilih berkas setelah tersedia" readonly>
                     </div>
                 </div>
 

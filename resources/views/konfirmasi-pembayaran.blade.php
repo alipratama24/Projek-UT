@@ -152,92 +152,60 @@
         @else
             {{-- FORMULIR KONFIRMASI PEMBAYARAN (SEBELUM DIKIRIM) --}}
             <div class="checkout-box form-confirmation-card">
-                {{-- BLOK TUJUAN PEMBAYARAN: TERKUNCI SESUAI PILIHAN DI CHECKOUT --}}
+                {{-- BLOK TUJUAN PEMBAYARAN: TRANSFER BANK --}}
                 <div class="payment-destination-box">
                     <div class="destination-header">
                         <div>
-                            <span class="eyebrow">METODE PEMBAYARAN TERPILIH</span>
+                            <span class="eyebrow">METODE PEMBAYARAN</span>
                             <h3 class="destination-title">
-                                @if($metode === 'qris')
-                                    QRIS (Scan QR Code)
-                                @else
-                                    Transfer Bank
-                                @endif
+                                Transfer Bank
                             </h3>
                         </div>
-                        <a href="{{ route('checkout') }}" class="link-change-method">
-                            Ubah metode pembayaran
-                        </a>
                     </div>
 
-                    @if($metode === 'transfer')
-                        {{-- HANYA TRANSFER BANK --}}
-                        <div class="pay-method-locked-content">
-                            <p class="body-text font-13">Silakan transfer sesuai nominal invoice ke salah satu rekening resmi studio di bawah ini:</p>
-                            
-                            <div class="bank-cards-grid">
-                                {{-- Kartu Bank BCA --}}
-                                <div class="bank-card">
-                                    <div class="bank-card__top">
-                                        <span class="bank-badge bank-bca">BCA</span>
-                                        <span class="bank-owner">a.n. naro capture Studio</span>
-                                    </div>
-                                    <div class="bank-card__number-wrap">
-                                        <span class="bank-number" id="bcaNumber">8735 0912 344</span>
-                                        <button type="button" class="btn-icon-copy" title="Salin nomor rekening" onclick="copyText('87350912344', this)">
-                                            <img src="{{ asset('images/icon-copy.svg') }}" alt="Salin" width="16" height="16">
-                                        </button>
-                                    </div>
+                    <div class="pay-method-locked-content">
+                        <p class="body-text font-13">Silakan transfer sesuai nominal invoice ke salah satu rekening resmi studio di bawah ini:</p>
+                        
+                        <div class="bank-cards-grid">
+                            {{-- Kartu Bank BCA --}}
+                            <div class="bank-card">
+                                <div class="bank-card__top">
+                                    <span class="bank-badge bank-bca">BCA</span>
+                                    <span class="bank-owner">a.n. naro capture Studio</span>
                                 </div>
-
-                                {{-- Kartu Bank Mandiri --}}
-                                <div class="bank-card">
-                                    <div class="bank-card__top">
-                                        <span class="bank-badge bank-mandiri">MANDIRI</span>
-                                        <span class="bank-owner">a.n. naro capture Studio</span>
-                                    </div>
-                                    <div class="bank-card__number-wrap">
-                                        <span class="bank-number" id="mandiriNumber">137 00 2841 9920</span>
-                                        <button type="button" class="btn-icon-copy" title="Salin nomor rekening" onclick="copyText('1370028419920', this)">
-                                            <img src="{{ asset('images/icon-copy.svg') }}" alt="Salin" width="16" height="16">
-                                        </button>
-                                    </div>
+                                <div class="bank-card__number-wrap">
+                                    <span class="bank-number" id="bcaNumber">8735 0912 344</span>
+                                    <button type="button" class="btn-icon-copy" title="Salin nomor rekening" onclick="copyText('87350912344', this)">
+                                        <img src="{{ asset('images/icon-copy.svg') }}" alt="Salin" width="16" height="16">
+                                    </button>
                                 </div>
                             </div>
 
-                            <div class="nominal-highlight-box">
-                                <span class="font-12 muted">Nominal yang harus ditransfer:</span>
-                                <div class="nominal-row">
-                                    <strong class="nominal-val">{{ $data['package_price'] }}</strong>
-                                    <button type="button" class="btn-icon-copy" title="Salin nominal" onclick="copyText('{{ preg_replace('/[^0-9]/', '', $data['package_price']) }}', this)">
+                            {{-- Kartu Bank Mandiri --}}
+                            <div class="bank-card">
+                                <div class="bank-card__top">
+                                    <span class="bank-badge bank-mandiri">MANDIRI</span>
+                                    <span class="bank-owner">a.n. naro capture Studio</span>
+                                </div>
+                                <div class="bank-card__number-wrap">
+                                    <span class="bank-number" id="mandiriNumber">137 00 2841 9920</span>
+                                    <button type="button" class="btn-icon-copy" title="Salin nomor rekening" onclick="copyText('1370028419920', this)">
                                         <img src="{{ asset('images/icon-copy.svg') }}" alt="Salin" width="16" height="16">
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    @else
-                        {{-- HANYA QRIS --}}
-                        <div class="pay-method-locked-content">
-                            <div class="qris-display-card">
-                                <div class="qris-qr-frame">
-                                    <div class="qris-header-tag">QRIS · National QR Standard</div>
-                                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=00020101021226500014ID.LINKAJA.WWW01189360091200000000015204581253033605802ID5919NARO+CAPTURE+STUDIO6007JAKARTA61051219062070703A016304C2E4" alt="QRIS naro capture Studio" class="qris-code-img">
-                                    <span class="qris-merchant-name">NARO CAPTURE STUDIO</span>
-                                    <span class="qris-merchant-nns">NMID: ID1020039281749</span>
-                                </div>
-                                <div class="qris-instructions">
-                                    <h4 class="font-14 font-semibold">Cara Pembayaran QRIS:</h4>
-                                    <ol class="qris-steps-list">
-                                        <li>Buka aplikasi m-Banking (BCA, Mandiri, BRI, BNI) atau e-Wallet (GoPay, OVO, Dana, ShopeePay).</li>
-                                        <li>Pilih menu <strong>Pindai / Scan QRIS</strong>.</li>
-                                        <li>Arahkan kamera ke kode QR di samping.</li>
-                                        <li>Pastikan nama merchant: <strong>NARO CAPTURE STUDIO</strong> dan nominal transfer: <strong>{{ $data['package_price'] }}</strong>.</li>
-                                        <li>Selesaikan pembayaran dan simpan tangkapan layar (screenshot) bukti transfer.</li>
-                                    </ol>
-                                </div>
+
+                        <div class="nominal-highlight-box">
+                            <span class="font-12 muted">Nominal yang harus ditransfer:</span>
+                            <div class="nominal-row">
+                                <strong class="nominal-val">{{ $data['package_price'] }}</strong>
+                                <button type="button" class="btn-icon-copy" title="Salin nominal" onclick="copyText('{{ preg_replace('/[^0-9]/', '', $data['package_price']) }}', this)">
+                                    <img src="{{ asset('images/icon-copy.svg') }}" alt="Salin" width="16" height="16">
+                                </button>
                             </div>
                         </div>
-                    @endif
+                    </div>
                 </div>
 
                 <hr class="divider">
@@ -248,7 +216,7 @@
                         <span class="form-required-note">* Wajib diisi</span>
                     </div>
                     <p class="body-text">
-                        Setelah berhasil melakukan transfer atau scan QRIS di atas, unggah struk atau tangkapan layar pembayaran di bawah ini.
+                        Setelah berhasil melakukan transfer ke rekening di atas, unggah struk atau tangkapan layar bukti transfer di bawah ini.
                     </p>
                 </div>
 
