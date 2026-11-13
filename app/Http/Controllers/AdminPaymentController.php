@@ -43,7 +43,69 @@ class AdminPaymentController extends Controller
             ];
         })->toArray();
 
-        return view('admin.pembayaran', compact('payments', 'activeTab'));
+        $unpaidInvoices = Order::where(function($q) {
+            $q->whereNull('payment_status')
+              ->orWhere('payment_status', '!=', 'Terverifikasi');
+        })->get();
+
+        // Jika semua invoice saat ini sudah terverifikasi, tetap sertakan semua invoice untuk opsi pencatatan
+        if ($unpaidInvoices->isEmpty()) {
+            $unpaidInvoices = Order::latest()->get();
+        }
+
+        return view('admin.pembayaran', compact('payments', 'activeTab', 'unpaidInvoices'));
+    }
+
+    /**
+     * Simpan Pembayaran Manual
+     */
+    public function storeManual(Request $request)
+    {
+        $validated = $request->validate([
+            'invoice_number' => 'required|string',
+            'metode_penerimaan' => 'required|string',
+            'nominal' => 'required|string',
+            'tanggal_penerimaan' => 'required|date',
+            'catatan' => 'nullable|string',
+        ]);
+
+        // Bersihkan angka nominal jika ada karakter non-angka
+        $cleanNominal = (int) preg_replace('/[^0-9]/', '', $validated['nominal']);
+        if ($cleanNominal <= 0) {
+            $cleanNominal = 1000000;
+        }
+
+        $order = Order::where('invoice_number', $validated['invoice_number'])->first();
+
+        // Buat nomor payment_code unik
+        $nextPaymentCount = Payment::count() + 1;
+        $paymentCode = 'BYR-MANUAL-' . str_pad($nextPaymentCount, 3, '0', STR_PAD_LEFT);
+
+        $senderName = $order ? $order->customer_name : 'Pembayaran Tunai Studio';
+
+        $payment = Payment::create([
+            'payment_code' => $paymentCode,
+            'order_id' => $order ? $order->id : null,
+            'sender_name' => $senderName,
+            'transfer_date' => $validated['tanggal_penerimaan'],
+            'bank_source' => $validated['metode_penerimaan'],
+            'nominal' => $cleanNominal,
+            'sender_notes' => $validated['catatan'] ?? 'Pembayaran manual studio naro capture',
+            'file_extension' => 'MANUAL',
+            'status' => 'Terverifikasi',
+            'verified_at' => now(),
+            'internal_review_notes' => 'Dicatat secara manual oleh admin/kasir: ' . $validated['metode_penerimaan'],
+        ]);
+
+        if ($order) {
+            $order->update([
+                'payment_status' => 'Terverifikasi',
+                'session_status' => $order->session_status === 'Menunggu pembayaran' ? 'Dikonfirmasi' : $order->session_status,
+            ]);
+        }
+
+        return redirect()->route('admin.pembayaran')
+            ->with('success', 'Pembayaran manual sebesar Rp' . number_format($cleanNominal, 0, ',', '.') . ' untuk ' . $validated['invoice_number'] . ' berhasil disimpan dan diverifikasi.');
     }
 
     /**

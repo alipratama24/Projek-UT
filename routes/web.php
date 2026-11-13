@@ -187,6 +187,7 @@ Route::prefix('admin')->group(function () {
 
         // Pembayaran
         Route::get('/pembayaran', [AdminPaymentController::class, 'index'])->name('admin.pembayaran');
+        Route::post('/pembayaran/manual', [AdminPaymentController::class, 'storeManual'])->name('admin.pembayaran.manual');
         Route::get('/pembayaran/{id}', [AdminPaymentController::class, 'show'])->name('admin.pembayaran.detail');
         Route::post('/pembayaran/{id}/verifikasi', [AdminPaymentController::class, 'verifikasi'])->name('admin.pembayaran.verifikasi-action');
         Route::post('/pembayaran/{id}/minta-perbaikan', [AdminPaymentController::class, 'mintaPerbaikan'])->name('admin.pembayaran.minta-perbaikan');

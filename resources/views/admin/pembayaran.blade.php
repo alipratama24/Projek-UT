@@ -177,66 +177,79 @@
     {{-- MODAL DIALOG CATAT PEMBAYARAN MANUAL (FIGMA 141:2208) --}}
     <div class="admin-modal-overlay" id="modal-manual-payment">
         <div class="admin-modal-dialog">
-            <div class="admin-modal-header">
-                <h3 class="admin-modal-title">Catat pembayaran manual</h3>
-                <button type="button" class="admin-btn-close-modal" data-close="modal-manual-payment">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#253247" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
-            <p class="admin-modal-subtitle">Rekam transaksi tunai atau transfer langsung di studio</p>
-
-            <hr class="divider">
-
-            <div class="admin-meta-row-2">
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Nomor invoice terkait *</label>
-                    <input type="text" class="admin-form-input font-mono" placeholder="INV-CH-2026-..." value="INV-CH-2026-004">
+            <form action="{{ route('admin.pembayaran.manual') }}" method="POST">
+                @csrf
+                <div class="admin-modal-header">
+                    <h3 class="admin-modal-title">Catat pembayaran manual</h3>
+                    <button type="button" class="admin-btn-close-modal" data-close="modal-manual-payment">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#253247" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Metode penerimaan *</label>
-                    <select class="admin-form-input">
-                        <option selected>Tunai di Kasir Studio</option>
-                        <option>EDC / Kartu Debit</option>
-                        <option>Transfer Bank Langsung</option>
-                    </select>
+
+                <p class="admin-modal-subtitle">Rekam transaksi tunai atau transfer langsung di studio</p>
+
+                <hr class="divider">
+
+                <div class="admin-meta-row-2">
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Nomor invoice terkait *</label>
+                        @if(isset($unpaidInvoices) && $unpaidInvoices->isNotEmpty())
+                            <select name="invoice_number" class="admin-form-input font-mono" required>
+                                @foreach($unpaidInvoices as $inv)
+                                    <option value="{{ $inv->invoice_number }}">
+                                        {{ $inv->invoice_number }} — {{ $inv->customer_name }} (Rp{{ number_format($inv->total_price, 0, ',', '.') }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        @else
+                            <input type="text" name="invoice_number" class="admin-form-input font-mono" placeholder="INV-CH-2026-..." value="INV-CH-2026-001" required>
+                        @endif
+                    </div>
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Metode penerimaan *</label>
+                        <select name="metode_penerimaan" class="admin-form-input" required>
+                            <option value="Tunai di Kasir Studio" selected>Tunai di Kasir Studio</option>
+                            <option value="EDC / Kartu Debit">EDC / Kartu Debit</option>
+                            <option value="Transfer Bank Langsung">Transfer Bank Langsung</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
 
-            <div class="admin-meta-row-2">
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Nominal diterima *</label>
-                    <input type="text" class="admin-form-input font-mono" placeholder="Rp 0" value="Rp18.000.000">
+                <div class="admin-meta-row-2">
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Nominal diterima *</label>
+                        <input type="text" name="nominal" class="admin-form-input font-mono" placeholder="Rp 0" value="Rp1.250.000" required>
+                    </div>
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Tanggal penerimaan *</label>
+                        <input type="date" name="tanggal_penerimaan" class="admin-form-input" value="{{ date('Y-m-d') }}" required>
+                    </div>
                 </div>
+
                 <div class="admin-meta-field">
-                    <label class="admin-meta-label">Tanggal penerimaan *</label>
-                    <input type="date" class="admin-form-input" value="{{ date('Y-m-d') }}">
+                    <label class="admin-meta-label">Catatan kasir / administrasi</label>
+                    <textarea name="catatan" class="admin-form-input" rows="3">Diterima langsung di studio oleh naro capture.</textarea>
                 </div>
-            </div>
 
-            <div class="admin-meta-field">
-                <label class="admin-meta-label">Catatan kasir / administrasi</label>
-                <textarea class="admin-form-input" rows="3">Diterima langsung di studio oleh naro capture.</textarea>
-            </div>
+                <div class="admin-alert-box alert-success-box">
+                    <strong class="admin-alert-title text-green">Pencatatan resmi</strong>
+                    <p class="admin-alert-desc text-green">
+                        Pembayaran manual akan tercatat ke pembukuan dan memvalidasi invoice terkait secara otomatis.
+                    </p>
+                </div>
 
-            <div class="admin-alert-box alert-success-box">
-                <strong class="admin-alert-title text-green">Pencatatan resmi</strong>
-                <p class="admin-alert-desc text-green">
-                    Pembayaran manual akan tercatat ke pembukuan dan memvalidasi invoice terkait.
-                </p>
-            </div>
+                <hr class="divider">
 
-            <hr class="divider">
-
-            <div class="admin-modal-actions">
-                <button type="button" class="admin-btn-outline" data-close="modal-manual-payment">Batal</button>
-                <button type="button" class="admin-btn-primary" onclick="alert('Pembayaran manual berhasil disimpan.')">
-                    Simpan pembayaran
-                </button>
-            </div>
+                <div class="admin-modal-actions">
+                    <button type="button" class="admin-btn-outline" data-close="modal-manual-payment">Batal</button>
+                    <button type="submit" class="admin-btn-primary">
+                        Simpan pembayaran
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
