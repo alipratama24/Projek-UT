@@ -201,7 +201,14 @@ Route::prefix('admin')->group(function () {
         Route::get('/pelanggan', function () {
             $activeTab = request('tab', 'aktif');
 
-            $customers = \App\Models\Customer::with('orders')->latest()->get()->map(function ($c) {
+            $query = \App\Models\Customer::with('orders')->latest();
+            if ($activeTab === 'aktif') {
+                $query->where('status', 'aktif');
+            } elseif ($activeTab === 'riwayat') {
+                $query->where('status', 'riwayat');
+            }
+
+            $customers = $query->get()->map(function ($c) {
                 $orderCount = $c->orders->count();
                 return [
                     'name' => $c->name,
@@ -213,35 +220,76 @@ Route::prefix('admin')->group(function () {
                 ];
             })->toArray();
 
-            if (empty($customers)) {
-                $customers = [
-                    [
-                        'name' => 'Ayu Pramesti',
-                        'id' => 'PLG-CONTOH-001',
-                        'email' => 'ayu.pramesti@example.com',
-                        'whatsapp' => '+62 8•• •••• 7890',
-                        'history' => '1 pesanan aktif',
-                        'status' => 'Aktif',
-                    ],
-                    [
-                        'name' => 'Budi Santoso & Keluarga',
-                        'id' => 'PLG-CONTOH-002',
-                        'email' => 'budi.santoso@example.com',
-                        'whatsapp' => '+62 8•• •••• 5432',
-                        'history' => '1 sesi aktif',
-                        'status' => 'Aktif',
-                    ],
-                ];
-            }
-
             return view('admin.pelanggan', compact('customers', 'activeTab'));
         })->name('admin.pelanggan');
+
+        Route::post('/pelanggan', function (\Illuminate\Http\Request $request) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'whatsapp' => 'required|string|max:50',
+                'notes' => 'nullable|string',
+            ]);
+
+            $nextCount = \App\Models\Customer::count() + 1;
+            $customerCode = 'PLG-' . date('Y') . '-' . str_pad($nextCount, 3, '0', STR_PAD_LEFT);
+
+            \App\Models\Customer::create([
+                'customer_code' => $customerCode,
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'whatsapp' => $validated['whatsapp'],
+                'notes' => $validated['notes'] ?? null,
+                'status' => 'aktif',
+            ]);
+
+            return redirect()->route('admin.pelanggan')
+                ->with('success', 'Pelanggan ' . $validated['name'] . ' (' . $customerCode . ') berhasil ditambahkan ke database.');
+        })->name('admin.pelanggan.store');
 
         // Paket
         Route::get('/paket', function () {
             $packages = \App\Models\Package::all();
             return view('admin.paket', compact('packages'));
         })->name('admin.paket');
+
+        Route::post('/paket', function (\Illuminate\Http\Request $request) {
+            $validated = $request->validate([
+                'name' => 'required|string|max:255',
+                'price' => 'required|string',
+                'duration_minutes' => 'required|numeric',
+                'photo_count' => 'required|numeric',
+                'description' => 'required|string',
+                'features' => 'nullable|string',
+            ]);
+
+            $cleanPrice = (int) preg_replace('/[^0-9]/', '', $validated['price']);
+            $featuresList = array_values(array_filter(array_map('trim', explode("\n", $validated['features'] ?? ''))));
+
+            $slug = \Illuminate\Support\Str::slug($validated['name']);
+            $count = \App\Models\Package::count() + 1;
+            $code = 'PKG-' . strtoupper($slug);
+
+            \App\Models\Package::create([
+                'slug' => $slug,
+                'code' => $code,
+                'name' => $validated['name'],
+                'tagline' => $validated['description'],
+                'description' => $validated['description'],
+                'price' => $cleanPrice,
+                'duration' => $validated['duration_minutes'] . ' menit',
+                'duration_minutes' => (int) $validated['duration_minutes'],
+                'photo_count' => (int) $validated['photo_count'],
+                'photo_count_label' => $validated['photo_count'] . ' foto retouched',
+                'features' => $featuresList,
+                'image' => 'paket-birthday.jpg',
+                'is_active' => true,
+                'is_featured' => false,
+            ]);
+
+            return redirect()->route('admin.paket')
+                ->with('success', 'Paket layanan ' . $validated['name'] . ' berhasil ditambahkan.');
+        })->name('admin.paket.store');
 
         // Galeri
         Route::get('/galeri', function () {

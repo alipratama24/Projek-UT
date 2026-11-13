@@ -99,71 +99,76 @@
         @endforelse
     </div>
 
-    {{-- FEEDBACK NOTICE (FIGMA 141:3680) --}}
-    <div class="admin-alert-box alert-success-box">
-        <strong class="admin-alert-title text-green">Paket tersimpan</strong>
-        <p class="admin-alert-desc text-green">
-            Contoh feedback: deskripsi diperbarui. Pesanan yang sudah dibuat tetap memakai harga dan cakupan saat dipesan.
-        </p>
-    </div>
+    {{-- FEEDBACK NOTICE --}}
+    @if(session('success'))
+        <div class="admin-alert-box alert-success-box">
+            <strong class="admin-alert-title text-green">Berhasil</strong>
+            <p class="admin-alert-desc text-green">
+                {{ session('success') }}
+            </p>
+        </div>
+    @endif
 
     {{-- MODAL DIALOG TAMBAH PAKET (FIGMA 141:3784) --}}
     <div class="admin-modal-overlay" id="modal-add-package">
         <div class="admin-modal-dialog">
-            <div class="admin-modal-header">
-                <h3 class="admin-modal-title">Tambah paket layanan</h3>
-                <button type="button" class="admin-btn-close-modal" data-close="modal-add-package">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#253247" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
-            <p class="admin-modal-subtitle">Konfigurasi paket sesi baru yang dapat dipilih pelanggan</p>
-
-            <hr class="divider">
-
-            <div class="admin-meta-row-2">
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Nama paket *</label>
-                    <input type="text" class="admin-form-input" placeholder="Contoh: Sesi Wisuda" required>
+            <form action="{{ route('admin.paket.store') }}" method="POST">
+                @csrf
+                <div class="admin-modal-header">
+                    <h3 class="admin-modal-title">Tambah paket layanan</h3>
+                    <button type="button" class="admin-btn-close-modal" data-close="modal-add-package">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#253247" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Harga sesi *</label>
-                    <input type="text" class="admin-form-input font-mono" placeholder="Rp 0" required>
+
+                <p class="admin-modal-subtitle">Konfigurasi paket sesi baru yang dapat dipilih pelanggan</p>
+
+                <hr class="divider">
+
+                <div class="admin-meta-row-2">
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Nama paket *</label>
+                        <input type="text" name="name" class="admin-form-input" placeholder="Contoh: Sesi Wisuda" required>
+                    </div>
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Harga sesi *</label>
+                        <input type="text" name="price" class="admin-form-input font-mono" placeholder="Rp 0" required>
+                    </div>
                 </div>
-            </div>
 
-            <div class="admin-meta-row-2">
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Durasi sesi (menit) *</label>
-                    <input type="number" class="admin-form-input" value="60" required>
+                <div class="admin-meta-row-2">
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Durasi sesi (menit) *</label>
+                        <input type="number" name="duration_minutes" class="admin-form-input" value="60" required>
+                    </div>
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Target foto diedit *</label>
+                        <input type="number" name="photo_count" class="admin-form-input" value="30" required>
+                    </div>
                 </div>
+
                 <div class="admin-meta-field">
-                    <label class="admin-meta-label">Target foto diedit *</label>
-                    <input type="number" class="admin-form-input" value="30" required>
+                    <label class="admin-meta-label">Deskripsi singkat *</label>
+                    <textarea name="description" class="admin-form-input" rows="2" placeholder="Deskripsi untuk kartu paket pemesanan" required></textarea>
                 </div>
-            </div>
 
-            <div class="admin-meta-field">
-                <label class="admin-meta-label">Deskripsi singkat *</label>
-                <textarea class="admin-form-input" rows="2" placeholder="Deskripsi untuk kartu paket pemesanan"></textarea>
-            </div>
+                <div class="admin-meta-field">
+                    <label class="admin-meta-label">Fasilitas yang didapat (satu baris per poin)</label>
+                    <textarea name="features" class="admin-form-input" rows="3" placeholder="Satu lokasi studio&#10;30 foto diedit resolusi penuh&#10;Galeri online pribadi"></textarea>
+                </div>
 
-            <div class="admin-meta-field">
-                <label class="admin-meta-label">Fasilitas yang didapat (satu baris per poin)</label>
-                <textarea class="admin-form-input" rows="3" placeholder="Satu lokasi studio&#10;30 foto diedit resolusi penuh&#10;Galeri online pribadi"></textarea>
-            </div>
+                <hr class="divider">
 
-            <hr class="divider">
-
-            <div class="admin-modal-actions">
-                <button type="button" class="admin-btn-outline" data-close="modal-add-package">Batal</button>
-                <button type="button" class="admin-btn-primary" onclick="alert('Paket layanan baru berhasil ditambahkan.')">
-                    Simpan paket
-                </button>
-            </div>
+                <div class="admin-modal-actions">
+                    <button type="button" class="admin-btn-outline" data-close="modal-add-package">Batal</button>
+                    <button type="submit" class="admin-btn-primary">
+                        Simpan paket
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 

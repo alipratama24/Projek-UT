@@ -15,13 +15,15 @@
         </button>
     </div>
 
-    {{-- FEEDBACK NOTICE (FIGMA 141:3101) --}}
-    <div class="admin-alert-box alert-success-box">
-        <strong class="admin-alert-title text-green">Data pelanggan tersimpan</strong>
-        <p class="admin-alert-desc text-green">
-            Contoh feedback: catatan Nadia Putri diperbarui. Riwayat pesanan dan pembayaran tidak berubah.
-        </p>
-    </div>
+    {{-- FEEDBACK NOTICE --}}
+    @if(session('success'))
+        <div class="admin-alert-box alert-success-box">
+            <strong class="admin-alert-title text-green">Berhasil</strong>
+            <p class="admin-alert-desc text-green">
+                {{ session('success') }}
+            </p>
+        </div>
+    @endif
 
     {{-- PANEL UTAMA TABEL PELANGGAN (FIGMA 141:3104) --}}
     <div class="admin-panel admin-orders-panel">
@@ -135,55 +137,58 @@
     {{-- MODAL DIALOG TAMBAH PELANGGAN (FIGMA 141:3288) --}}
     <div class="admin-modal-overlay" id="modal-add-customer">
         <div class="admin-modal-dialog">
-            <div class="admin-modal-header">
-                <h3 class="admin-modal-title">Tambah pelanggan</h3>
-                <button type="button" class="admin-btn-close-modal" data-close="modal-add-customer">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#253247" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="18" y1="6" x2="6" y2="18"></line>
-                        <line x1="6" y1="6" x2="18" y2="18"></line>
-                    </svg>
-                </button>
-            </div>
-
-            <p class="admin-modal-subtitle">Rekam kontak pemesan untuk persiapan sesi studio</p>
-
-            <hr class="divider">
-
-            <div class="admin-meta-row-2">
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Nama lengkap *</label>
-                    <input type="text" class="admin-form-input" placeholder="Nama pemesan" required>
+            <form action="{{ route('admin.pelanggan.store') }}" method="POST">
+                @csrf
+                <div class="admin-modal-header">
+                    <h3 class="admin-modal-title">Tambah pelanggan</h3>
+                    <button type="button" class="admin-btn-close-modal" data-close="modal-add-customer">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#253247" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
                 </div>
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">ID Pelanggan (otomatis)</label>
-                    <input type="text" class="admin-form-input font-mono" value="PLG-CONTOH-008" readonly>
+
+                <p class="admin-modal-subtitle">Rekam kontak pemesan untuk persiapan sesi studio</p>
+
+                <hr class="divider">
+
+                <div class="admin-meta-row-2">
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Nama lengkap *</label>
+                        <input type="text" name="name" class="admin-form-input" placeholder="Nama pemesan" required>
+                    </div>
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">ID Pelanggan (otomatis)</label>
+                        <input type="text" class="admin-form-input font-mono" value="PLG-{{ date('Y') }}-{{ str_pad(\App\Models\Customer::count() + 1, 3, '0', STR_PAD_LEFT) }}" readonly>
+                    </div>
                 </div>
-            </div>
 
-            <div class="admin-meta-row-2">
-                <div class="admin-meta-field">
-                    <label class="admin-meta-label">Email *</label>
-                    <input type="email" class="admin-form-input" placeholder="email@example.com" required>
+                <div class="admin-meta-row-2">
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">Email *</label>
+                        <input type="email" name="email" class="admin-form-input" placeholder="email@example.com" required>
+                    </div>
+                    <div class="admin-meta-field">
+                        <label class="admin-meta-label">WhatsApp *</label>
+                        <input type="tel" name="whatsapp" class="admin-form-input" placeholder="+62 8..." required>
+                    </div>
                 </div>
+
                 <div class="admin-meta-field">
-                    <label class="admin-meta-label">WhatsApp *</label>
-                    <input type="tel" class="admin-form-input" placeholder="+62 8..." required>
+                    <label class="admin-meta-label">Catatan preferensi gaya / keluarga</label>
+                    <textarea name="notes" class="admin-form-input" rows="3" placeholder="Contoh: Menyukai nuansa outdoor di pagi hari"></textarea>
                 </div>
-            </div>
 
-            <div class="admin-meta-field">
-                <label class="admin-meta-label">Catatan preferensi gaya / keluarga</label>
-                <textarea class="admin-form-input" rows="3" placeholder="Contoh: Menyukai nuansa outdoor di pagi hari"></textarea>
-            </div>
+                <hr class="divider">
 
-            <hr class="divider">
-
-            <div class="admin-modal-actions">
-                <button type="button" class="admin-btn-outline" data-close="modal-add-customer">Batal</button>
-                <button type="button" class="admin-btn-primary" onclick="alert('Data pelanggan baru berhasil ditambahkan.')">
-                    Simpan pelanggan
-                </button>
-            </div>
+                <div class="admin-modal-actions">
+                    <button type="button" class="admin-btn-outline" data-close="modal-add-customer">Batal</button>
+                    <button type="submit" class="admin-btn-primary">
+                        Simpan pelanggan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
