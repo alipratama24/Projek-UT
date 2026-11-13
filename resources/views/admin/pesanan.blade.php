@@ -10,9 +10,6 @@
             <h1 class="admin-page-title">Pesanan</h1>
             <p class="admin-page-subtitle">Kelola permintaan, persiapan sesi, dan riwayat pelanggan.</p>
         </div>
-        <a href="{{ route('pemesanan') }}" target="_blank" class="admin-btn-primary">
-            Tambah pesanan
-        </a>
     </div>
 
     {{-- BARIS KONTEN METRIK STATUS (FIGMA 141:1046) --}}
