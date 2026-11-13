@@ -215,9 +215,9 @@
                 <span class="total-note">Dalam rupiah (IDR) · sesuai harga paket</span>
             </div>
 
-            <button type="button" class="btn btn--outline btn--block" onclick="alert('Draf invoice telah diunduh!')">
+            <a href="{{ route('checkout.download-invoice', ['order' => $data['order_code']]) }}" class="btn btn--outline btn--block" style="text-align: center; text-decoration: none;">
                 Unduh draf invoice @include('partials.arrow')
-            </button>
+            </a>
 
             <hr class="divider">
 

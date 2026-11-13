@@ -20,6 +20,7 @@ class Package extends Model
         'duration_minutes',
         'photo_count',
         'photo_count_label',
+        'image',
         'features',
         'badge',
         'is_active',

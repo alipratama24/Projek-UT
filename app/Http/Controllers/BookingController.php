@@ -243,21 +243,38 @@ class BookingController extends Controller
      */
     public function checkout()
     {
-        $defaultOrder = Order::latest()->first();
+        $defaultOrder = Order::with('package')->latest()->first();
 
         $data = session('last_booking');
 
         if (!$data && $defaultOrder) {
+            $packageImage = 'paket-family.jpg';
+            if ($defaultOrder->package && !empty($defaultOrder->package->image)) {
+                $packageImage = $defaultOrder->package->image;
+            } elseif (!empty($defaultOrder->package_name)) {
+                $pkgNameLower = strtolower($defaultOrder->package_name);
+                if (str_contains($pkgNameLower, 'graduat') || str_contains($pkgNameLower, 'wisuda')) {
+                    $packageImage = 'paket-graduation.jpg';
+                } elseif (str_contains($pkgNameLower, 'birth') || str_contains($pkgNameLower, 'ulang tahun')) {
+                    $packageImage = 'paket-birthday.jpg';
+                } elseif (str_contains($pkgNameLower, 'prewed')) {
+                    $packageImage = 'paket-prewedding.jpg';
+                } elseif (str_contains($pkgNameLower, 'fam') || str_contains($pkgNameLower, 'keluarga')) {
+                    $packageImage = 'paket-family.jpg';
+                }
+            }
+
             $data = [
                 'order_id' => $defaultOrder->id,
                 'order_code' => $defaultOrder->order_code,
                 'invoice_number' => $defaultOrder->invoice_number,
                 'package_name' => $defaultOrder->package_name,
                 'package_price' => 'Rp' . number_format($defaultOrder->total_price, 0, ',', '.'),
-                'package_image' => 'paket-family.jpg',
-                'package_desc' => 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
-                'lokasi_hint' => 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
-                'package_items' => [
+                'package_duration' => $defaultOrder->package ? ($defaultOrder->package->duration_minutes ?? 90) : 90,
+                'package_image' => $packageImage,
+                'package_desc' => $defaultOrder->package ? $defaultOrder->package->description : 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
+                'lokasi_hint' => $defaultOrder->package ? $defaultOrder->package->tagline : 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
+                'package_items' => ($defaultOrder->package && is_array($defaultOrder->package->features)) ? $defaultOrder->package->features : [
                     'Sesi 90 menit dengan narasi yang lebih dalam',
                     'Dua lokasi dan dua ganti kostum',
                     '50 foto diedit dengan hati-hati',
@@ -278,14 +295,20 @@ class BookingController extends Controller
     }
 
     /**
-     * Tampilkan form Konfirmasi Pembayaran
+     * Unduh Draf Invoice PDF
      */
-    public function showPaymentConfirmation(Request $request)
+    public function downloadInvoice(Request $request)
     {
         $data = session('last_booking');
 
         if (!$data) {
-            $order = Order::latest()->first();
+            $orderCode = $request->query('order');
+            $query = Order::query();
+            if ($orderCode) {
+                $query->where('order_code', $orderCode);
+            }
+            $order = $query->latest()->first();
+
             if ($order) {
                 $data = [
                     'order_id' => $order->id,
@@ -294,10 +317,63 @@ class BookingController extends Controller
                     'package_name' => $order->package_name,
                     'package_price' => 'Rp' . number_format($order->total_price, 0, ',', '.'),
                     'package_duration' => 90,
-                    'package_image' => 'paket-family.jpg',
-                    'package_desc' => 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
-                    'lokasi_hint' => 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
-                    'package_items' => [
+                    'session_date' => $order->session_date ? $order->session_date->format('d F Y') : date('d F Y'),
+                    'session_time' => $order->session_time_slot,
+                    'nama_lengkap' => $order->customer_name,
+                    'email' => $order->customer_email,
+                    'whatsapp' => $order->customer_whatsapp,
+                    'lokasi' => $order->location,
+                    'catatan' => $order->customer_notes,
+                ];
+            } else {
+                return redirect()->route('checkout');
+            }
+        }
+
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('invoices.pdf', compact('data'));
+        
+        $filename = 'Invoice-' . Str::slug($data['invoice_number'] ?? 'Draf-Pesanan') . '.pdf';
+
+        return $pdf->download($filename);
+    }
+
+    /**
+     * Tampilkan form Konfirmasi Pembayaran
+     */
+    public function showPaymentConfirmation(Request $request)
+    {
+        $data = session('last_booking');
+
+        if (!$data) {
+            $order = Order::with('package')->latest()->first();
+            if ($order) {
+                $packageImage = 'paket-family.jpg';
+                if ($order->package && !empty($order->package->image)) {
+                    $packageImage = $order->package->image;
+                } elseif (!empty($order->package_name)) {
+                    $pkgNameLower = strtolower($order->package_name);
+                    if (str_contains($pkgNameLower, 'graduat') || str_contains($pkgNameLower, 'wisuda')) {
+                        $packageImage = 'paket-graduation.jpg';
+                    } elseif (str_contains($pkgNameLower, 'birth') || str_contains($pkgNameLower, 'ulang tahun')) {
+                        $packageImage = 'paket-birthday.jpg';
+                    } elseif (str_contains($pkgNameLower, 'prewed')) {
+                        $packageImage = 'paket-prewedding.jpg';
+                    } elseif (str_contains($pkgNameLower, 'fam') || str_contains($pkgNameLower, 'keluarga')) {
+                        $packageImage = 'paket-family.jpg';
+                    }
+                }
+
+                $data = [
+                    'order_id' => $order->id,
+                    'order_code' => $order->order_code,
+                    'invoice_number' => $order->invoice_number,
+                    'package_name' => $order->package_name,
+                    'package_price' => 'Rp' . number_format($order->total_price, 0, ',', '.'),
+                    'package_duration' => $order->package ? ($order->package->duration_minutes ?? 90) : 90,
+                    'package_image' => $packageImage,
+                    'package_desc' => $order->package ? $order->package->description : 'Untuk keluarga, pasangan, dan momen-momen yang ingin dikenang bersama.',
+                    'lokasi_hint' => $order->package ? $order->package->tagline : 'Dua lokasi termasuk dalam paket. Alamat dan lokasi akhir dibahas saat perencanaan.',
+                    'package_items' => ($order->package && is_array($order->package->features)) ? $order->package->features : [
                         'Sesi 90 menit dengan narasi yang lebih dalam',
                         'Dua lokasi dan dua ganti kostum',
                         '50 foto diedit dengan hati-hati',

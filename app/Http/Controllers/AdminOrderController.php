@@ -79,6 +79,23 @@ class AdminOrderController extends Controller
 
             $latestPayment = $orderModel->payments()->latest()->first();
 
+            // Tentukan gambar paket yang sesuai
+            $packageImage = 'paket-family.jpg';
+            if ($orderModel->package && !empty($orderModel->package->image)) {
+                $packageImage = $orderModel->package->image;
+            } else {
+                $pkgNameLower = strtolower($orderModel->package_name ?? '');
+                if (str_contains($pkgNameLower, 'graduat') || str_contains($pkgNameLower, 'wisuda')) {
+                    $packageImage = 'paket-graduation.jpg';
+                } elseif (str_contains($pkgNameLower, 'birth') || str_contains($pkgNameLower, 'ulang tahun')) {
+                    $packageImage = 'paket-birthday.jpg';
+                } elseif (str_contains($pkgNameLower, 'prewed')) {
+                    $packageImage = 'paket-prewedding.jpg';
+                } elseif (str_contains($pkgNameLower, 'fam') || str_contains($pkgNameLower, 'keluarga')) {
+                    $packageImage = 'paket-family.jpg';
+                }
+            }
+
             $order = [
                 'id' => $orderModel->id,
                 'code' => $orderModel->order_code,
@@ -88,7 +105,7 @@ class AdminOrderController extends Controller
                 'phone' => $orderModel->customer_whatsapp,
                 'created_date' => $createdDate,
                 'package_name' => $orderModel->package_name,
-                'package_image' => 'paket-family.jpg',
+                'package_image' => $packageImage,
                 'package_desc' => $orderModel->package ? $orderModel->package->description : 'Sesi foto berkesan.',
                 'package_price' => 'Rp' . number_format($orderModel->total_price, 0, ',', '.'),
                 'date_formatted' => $dateFormatted,

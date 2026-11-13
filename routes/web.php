@@ -132,6 +132,7 @@ Route::get('/pemesanan', [BookingController::class, 'create'])->name('pemesanan'
 Route::post('/pemesanan', [BookingController::class, 'store'])->name('pemesanan.store');
 
 Route::get('/checkout', [BookingController::class, 'checkout'])->name('checkout');
+Route::get('/checkout/unduh-invoice', [BookingController::class, 'downloadInvoice'])->name('checkout.download-invoice');
 
 Route::get('/konfirmasi-pembayaran', [BookingController::class, 'showPaymentConfirmation'])->name('konfirmasi');
 Route::post('/konfirmasi-pembayaran', [BookingController::class, 'storePaymentConfirmation'])->name('konfirmasi.store');

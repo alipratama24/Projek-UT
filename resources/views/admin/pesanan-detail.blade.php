@@ -31,7 +31,13 @@
                 <h2 class="admin-panel-title">Detail sesi</h2>
 
                 <div class="admin-package-card">
-                    <img src="{{ asset('images/' . $order['package_image']) }}" alt="{{ $order['package_name'] }}" class="package-card-thumb">
+                    @php
+                        $thumbSrc = $order['package_image'] ?? 'paket-family.jpg';
+                        if (!\Illuminate\Support\Str::startsWith($thumbSrc, ['http://', 'https://', '/'])) {
+                            $thumbSrc = asset('images/' . $thumbSrc);
+                        }
+                    @endphp
+                    <img src="{{ $thumbSrc }}" alt="{{ $order['package_name'] }}" class="package-card-thumb">
                     <div class="package-card-info">
                         <h3 class="package-card-name">{{ $order['package_name'] }}</h3>
                         <p class="package-card-desc">{{ $order['package_desc'] }}</p>
