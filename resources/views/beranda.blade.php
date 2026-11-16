@@ -31,13 +31,36 @@
             @foreach ($columns as $column)
                 <div class="masonry__col">
                     @foreach ($column as $work)
-                        <figure class="work">
-                            <div class="work__img"><img src="{{ asset('images/' . $work['image']) }}" alt="{{ $work['title'] }}" style="height:{{ $work['height'] }}px"></div>
-                            <figcaption>
-                                <span class="work__title">{{ $work['title'] }}</span>
-                                <span class="work__cat">{{ $work['category'] }}</span>
-                            </figcaption>
-                        </figure>
+                        @php
+                            $targetUrl = !empty($work['slug']) ? route('galeri-klien', ['slug' => $work['slug']]) : route('galeri-klien');
+                            $imgSrc = $work['image'];
+                            if (!\Illuminate\Support\Str::startsWith($imgSrc, ['http://', 'https://'])) {
+                                if (file_exists(public_path('images/' . $imgSrc))) {
+                                    $imgSrc = asset('images/' . $imgSrc);
+                                } elseif (file_exists(public_path('storage/' . $imgSrc))) {
+                                    $imgSrc = asset('storage/' . $imgSrc);
+                                } else {
+                                    $imgSrc = asset('images/work-1.jpg');
+                                }
+                            }
+                        @endphp
+                        <a href="{{ $targetUrl }}" class="work-link" style="text-decoration:none; color:inherit; display:block;" title="Buka Galeri: {{ $work['title'] }}">
+                            <figure class="work">
+                                <div class="work__img" style="position:relative; overflow:hidden; border-radius:4px;">
+                                    <img src="{{ $imgSrc }}" alt="{{ $work['title'] }}" style="height:{{ $work['height'] }}px; object-fit:cover; width:100%; transition:transform 0.3s ease;">
+                                    @if(!empty($work['is_private']))
+                                        <span style="position:absolute; top:12px; right:12px; background:rgba(15,23,42,0.85); color:#fff; font-size:11px; font-weight:500; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:4px; backdrop-filter:blur(4px); box-shadow:0 2px 4px rgba(0,0,0,0.2);">
+                                            <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                                            Privat
+                                        </span>
+                                    @endif
+                                </div>
+                                <figcaption>
+                                    <span class="work__title">{{ $work['title'] }}</span>
+                                    <span class="work__cat">{{ $work['category'] }}</span>
+                                </figcaption>
+                            </figure>
+                        </a>
                     @endforeach
                 </div>
             @endforeach

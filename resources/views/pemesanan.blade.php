@@ -7,6 +7,35 @@
 @endphp
 
 @section('content')
+<style>
+.form-control.is-invalid, .custom-checkbox.is-invalid {
+    border-color: #DC2626 !important;
+    background-color: #FEF2F2 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15) !important;
+}
+.invalid-feedback {
+    display: block;
+    color: #DC2626;
+    font-size: 12px;
+    margin-top: 4px;
+    font-weight: 500;
+}
+.booking-alert-error {
+    margin: 0 0 24px 0;
+    padding: 16px 20px;
+    background: #FEF2F2;
+    border: 1px solid #FCA5A5;
+    border-radius: 8px;
+    color: #991B1B;
+}
+.booking-alert-error ul {
+    margin: 6px 0 0 0;
+    padding-left: 20px;
+    font-size: 13px;
+    line-height: 1.5;
+}
+</style>
+
 <main class="booking-page">
     {{-- Breadcrumb & Header --}}
     <section class="booking-hero">
@@ -26,7 +55,21 @@
         </div>
     </section>
 
-    <form action="{{ route('pemesanan.store') }}" method="POST" id="bookingForm">
+    @if ($errors->any())
+        <div class="booking-alert-error" id="serverValidationAlert">
+            <div style="font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                Pemesanan belum dapat diproses. Mohon lengkapi atau perbaiki data berikut:
+            </div>
+            <ul>
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ route('pemesanan.store') }}" method="POST" id="bookingForm" novalidate>
         @csrf
 
         {{-- LANGKAH 1: PILIH PAKET LAYANAN --}}
@@ -170,23 +213,31 @@
                             <span class="time-date-label" id="timeDateDisplay">{{ $defaultSelectedDate->translatedFormat('l, d F Y') }}</span>
                             <span class="small-caps">WIB</span>
                         </div>
-                        <div class="time-slots">
-                            <label class="time-slot-btn">
-                                <input type="radio" name="session_time" value="09.00" class="sr-only time-radio">
-                                <span class="slot-time">09.00</span>
-                                <span class="slot-status">Tersedia</span>
-                            </label>
-                            <div class="time-slot-btn is-full">
-                                <span class="slot-time">13.00</span>
-                                <span class="slot-status">Penuh</span>
-                            </div>
-                            <label class="time-slot-btn is-selected">
-                                <input type="radio" name="session_time" value="15.30" checked class="sr-only time-radio">
-                                <span class="slot-time">15.30</span>
-                                <span class="slot-status">Dipilih</span>
-                            </label>
+                        @error('session_time')
+                            <div class="invalid-feedback" style="margin-bottom: 8px;">{{ $message }}</div>
+                        @enderror
+                        <div class="invalid-feedback client-error" id="err_session_time" style="display:none; margin-bottom: 8px;"></div>
+                        <div class="time-slots" id="timeSlotsContainer">
+                            @forelse($initialSlots as $slot)
+                                @if($slot['is_available'])
+                                    <label class="time-slot-btn {{ ($initialSelectedSlot === $slot['time']) ? 'is-selected' : '' }}">
+                                        <input type="radio" name="session_time" value="{{ $slot['time'] }}" {{ ($initialSelectedSlot === $slot['time']) ? 'checked' : '' }} class="sr-only time-radio">
+                                        <span class="slot-time">{{ $slot['time'] }}</span>
+                                        <span class="slot-status">{{ ($initialSelectedSlot === $slot['time']) ? 'Dipilih' : 'Tersedia' }}</span>
+                                    </label>
+                                @else
+                                    <div class="time-slot-btn is-full" title="{{ $slot['note'] ?? $slot['status'] }}">
+                                        <span class="slot-time">{{ $slot['time'] }}</span>
+                                        <span class="slot-status">{{ $slot['status'] }}</span>
+                                    </div>
+                                @endif
+                            @empty
+                                <div style="grid-column: 1 / -1; padding: 14px; background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; border-radius: 6px; font-size: 13px; text-align: center;">
+                                    Tidak ada slot sesi yang tersedia pada tanggal ini. Silakan pilih tanggal lain yang bertanda hijau.
+                                </div>
+                            @endforelse
                         </div>
-                        <p class="time-duration-note" id="timeDurationNote">Durasi {{ $selectedPkg['name'] ?? 'Family Session' }}: {{ $selectedPkg['duration'] ?? 90 }} menit · 15.30–{{ ($selectedPkg['duration'] ?? 90) === 90 ? '17.00' : '16.30' }} WIB</p>
+                        <p class="time-duration-note" id="timeDurationNote">Durasi {{ $selectedPkg['name'] ?? 'Family Session' }}: {{ $selectedPkg['duration'] ?? 90 }} menit</p>
                     </div>
                 </div>
 
@@ -251,17 +302,29 @@
 
                         <div class="form-group">
                             <label for="nama_lengkap" class="form-label">Nama lengkap *</label>
-                            <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control" placeholder="Contoh: Ayu Pramesti" value="{{ old('nama_lengkap') }}" required>
+                            <input type="text" id="nama_lengkap" name="nama_lengkap" class="form-control @error('nama_lengkap') is-invalid @enderror" placeholder="Contoh: Ayu Pramesti" value="{{ old('nama_lengkap') }}" required>
+                            @error('nama_lengkap')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                            <span class="invalid-feedback client-error" id="err_nama_lengkap" style="display:none;"></span>
                         </div>
 
                         <div class="form-row-2">
                             <div class="form-group">
                                 <label for="email" class="form-label">Alamat email *</label>
-                                <input type="email" id="email" name="email" class="form-control" placeholder="nama@email.com" value="{{ old('email') }}" required>
+                                <input type="email" id="email" name="email" class="form-control @error('email') is-invalid @enderror" placeholder="nama@email.com" value="{{ old('email') }}" required>
+                                @error('email')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                                <span class="invalid-feedback client-error" id="err_email" style="display:none;"></span>
                             </div>
                             <div class="form-group">
                                 <label for="whatsapp" class="form-label">Nomor WhatsApp *</label>
-                                <input type="tel" id="whatsapp" name="whatsapp" class="form-control" placeholder="+62 812 3456 7890" value="{{ old('whatsapp') }}" inputmode="numeric" autocomplete="tel" required>
+                                <input type="tel" id="whatsapp" name="whatsapp" class="form-control @error('whatsapp') is-invalid @enderror" placeholder="+62 812 3456 7890" value="{{ old('whatsapp') }}" inputmode="numeric" autocomplete="tel" required>
+                                @error('whatsapp')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                                <span class="invalid-feedback client-error" id="err_whatsapp" style="display:none;"></span>
                             </div>
                         </div>
 
@@ -284,7 +347,11 @@
 
                         <div class="form-group">
                             <label for="lokasi" class="form-label">Lokasi sesi *</label>
-                            <input type="text" id="lokasi" name="lokasi" class="form-control" placeholder="Contoh: Rumah / Cafe / Studio di Jakarta Selatan" value="{{ old('lokasi') }}" required>
+                            <input type="text" id="lokasi" name="lokasi" class="form-control @error('lokasi') is-invalid @enderror" placeholder="Contoh: Rumah / Cafe / Studio di Jakarta Selatan" value="{{ old('lokasi') }}" required>
+                            @error('lokasi')
+                                <span class="invalid-feedback">{{ $message }}</span>
+                            @enderror
+                            <span class="invalid-feedback client-error" id="err_lokasi" style="display:none;"></span>
                             <p class="form-helper-text" id="lokasiHelper">{{ $selectedPkg['location_note'] ?? 'Satu lokasi pilihan Anda.' }}</p>
                         </div>
 
@@ -299,9 +366,13 @@
                     {{-- Persetujuan & Tombol Kirim --}}
                     <div class="form-section">
                         <label class="consent-checkbox-label">
-                            <input type="checkbox" id="persetujuanCheckbox" name="persetujuan" value="1" required class="custom-checkbox">
+                            <input type="checkbox" id="persetujuanCheckbox" name="persetujuan" value="1" required class="custom-checkbox @error('persetujuan') is-invalid @enderror">
                             <span class="consent-text">Saya menyetujui Kebijakan Privasi dan Syarat Pemesanan, serta bersedia dihubungi untuk membahas rencana sesi ini.</span>
                         </label>
+                        @error('persetujuan')
+                            <span class="invalid-feedback" style="margin-top:6px;">{{ $message }}</span>
+                        @enderror
+                        <span class="invalid-feedback client-error" id="err_persetujuan" style="display:none; margin-top:6px;"></span>
 
                         <button type="submit" id="submitBookingBtn" class="btn btn--fill btn--block btn--lg" disabled>
                             Kirim Permintaan Pemesanan @include('partials.arrow')
@@ -320,10 +391,11 @@
 {{-- SCRIPT INTERAKTIF PEMILIHAN PAKET, KALENDER, & WAKTU --}}
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    window.__STUDIO_SCHEDULE__ = @json($scheduleMap ?? []);
+
     const packageCards = document.querySelectorAll('.package-card-select');
-    const calDates = document.querySelectorAll('.cal-date.is-available');
-    const timeSlots = document.querySelectorAll('.time-slot-btn:not(.is-full)');
     const selectedDateInput = document.getElementById('selectedDateInput');
+    const timeSlotsContainer = document.getElementById('timeSlotsContainer');
     
     // Elemen Ringkasan & Form Mirror
     const sumPkg = document.getElementById('sumPackageName');
@@ -342,7 +414,34 @@ document.addEventListener('DOMContentLoaded', () => {
         location: "{{ $selectedPkg ? addslashes($selectedPkg['location_note'] ?? '') : '' }}"
     };
     let currentDateLabel = "{{ $defaultSelectedDate->translatedFormat('l, d F Y') }}";
-    let currentTimeSlot = '15.30';
+    let currentTimeSlot = "{{ $initialSelectedSlot ?? '15.30' }}";
+
+    function calculateEndTime(startTimeStr, durationMinutes) {
+        if (!startTimeStr) return '';
+        if (startTimeStr.includes('–') || startTimeStr.includes('-')) {
+            const rangeParts = startTimeStr.split(/[–-]/);
+            if (rangeParts.length >= 2) return rangeParts[1].trim();
+        }
+        const parts = startTimeStr.split(/[.:]/);
+        if (parts.length < 2) return startTimeStr;
+        const startH = parseInt(parts[0], 10);
+        const startM = parseInt(parts[1], 10);
+        const total = (startH * 60) + startM + parseInt(durationMinutes || 90, 10);
+        const endH = Math.floor(total / 60) % 24;
+        const endM = total % 60;
+        return `${String(endH).padStart(2, '0')}.${String(endM).padStart(2, '0')}`;
+    }
+
+    function getSlotsForDate(dateStr) {
+        if (window.__STUDIO_SCHEDULE__ && window.__STUDIO_SCHEDULE__[dateStr] && window.__STUDIO_SCHEDULE__[dateStr].slots) {
+            return window.__STUDIO_SCHEDULE__[dateStr].slots;
+        }
+        return [
+            { time: '09.00', end_time: '10.30', time_display: '09.00', status: 'Tersedia', is_available: true, type: 'available' },
+            { time: '13.00', end_time: '14.30', time_display: '13.00', status: 'Tersedia', is_available: true, type: 'available' },
+            { time: '15.30', end_time: '17.00', time_display: '15.30', status: 'Tersedia', is_available: true, type: 'available' }
+        ];
+    }
 
     function updateSummary() {
         if (sumPkg) sumPkg.textContent = currentPkg.name;
@@ -352,21 +451,82 @@ document.addEventListener('DOMContentLoaded', () => {
         if (sumDate) sumDate.textContent = currentDateLabel;
         if (timeDateDisplay) timeDateDisplay.textContent = currentDateLabel;
         
-        let endTime = '';
-        if (currentTimeSlot === '09.00') {
-            endTime = currentPkg.duration === 90 ? '10.30' : (currentPkg.duration === 45 ? '09.45' : '13.00');
-        } else if (currentTimeSlot === '15.30') {
-            endTime = currentPkg.duration === 90 ? '17.00' : (currentPkg.duration === 45 ? '16.15' : '19.30');
-        } else {
-            endTime = '14.30';
-        }
-
+        const endTime = calculateEndTime(currentTimeSlot, currentPkg.duration);
         const timeStr = `${currentTimeSlot}–${endTime} WIB · ${currentPkg.duration} menit`;
         if (sumTime) sumTime.textContent = timeStr;
         if (timeDurationNote) timeDurationNote.textContent = `Durasi ${currentPkg.name}: ${currentPkg.duration} menit · ${currentTimeSlot}–${endTime} WIB`;
     }
 
-    updateSummary();
+    function bindSlotEvents() {
+        const slotBtns = timeSlotsContainer ? timeSlotsContainer.querySelectorAll('.time-slot-btn:not(.is-full)') : [];
+        slotBtns.forEach(slot => {
+            slot.addEventListener('click', () => {
+                slotBtns.forEach(s => {
+                    s.classList.remove('is-selected');
+                    const st = s.querySelector('.slot-status');
+                    if (st) st.textContent = 'Tersedia';
+                });
+                slot.classList.add('is-selected');
+                const st = slot.querySelector('.slot-status');
+                if (st) st.textContent = 'Dipilih';
+                const radio = slot.querySelector('.time-radio');
+                if (radio) {
+                    radio.checked = true;
+                    currentTimeSlot = radio.value;
+                }
+                updateSummary();
+            });
+        });
+    }
+
+    function renderTimeSlots(dateStr) {
+        if (!timeSlotsContainer) return;
+
+        const slots = getSlotsForDate(dateStr);
+        let html = '';
+        let hasAvailable = false;
+
+        const matchCurrent = slots.find(s => s.time === currentTimeSlot && s.is_available);
+        if (!matchCurrent) {
+            const firstAvail = slots.find(s => s.is_available);
+            if (firstAvail) {
+                currentTimeSlot = firstAvail.time;
+            }
+        }
+
+        slots.forEach(slot => {
+            if (slot.is_available) {
+                hasAvailable = true;
+                const isSel = (slot.time === currentTimeSlot);
+                html += `
+                    <label class="time-slot-btn ${isSel ? 'is-selected' : ''}">
+                        <input type="radio" name="session_time" value="${slot.time}" ${isSel ? 'checked' : ''} class="sr-only time-radio">
+                        <span class="slot-time">${slot.time}</span>
+                        <span class="slot-status">${isSel ? 'Dipilih' : 'Tersedia'}</span>
+                    </label>
+                `;
+            } else {
+                html += `
+                    <div class="time-slot-btn is-full" title="${slot.note || slot.status}">
+                        <span class="slot-time">${slot.time}</span>
+                        <span class="slot-status">${slot.status}</span>
+                    </div>
+                `;
+            }
+        });
+
+        if (slots.length === 0 || !hasAvailable) {
+            html = `
+                <div style="grid-column: 1 / -1; padding: 14px; background: #FEF2F2; color: #991B1B; border: 1px solid #FCA5A5; border-radius: 6px; font-size: 13px; text-align: center;">
+                    Semua slot pada tanggal ini sudah terpesan atau diblokir. Silakan pilih tanggal lain yang bertanda hijau.
+                </div>
+            `;
+        }
+
+        timeSlotsContainer.innerHTML = html;
+        bindSlotEvents();
+        updateSummary();
+    }
 
     // Pemilihan Paket
     packageCards.forEach(card => {
@@ -391,7 +551,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             currentPkg.name = card.dataset.name;
             currentPkg.price = card.dataset.price;
-            currentPkg.duration = parseInt(card.dataset.duration || 90);
+            currentPkg.duration = parseInt(card.dataset.duration || 90, 10);
             currentPkg.location = card.dataset.location;
 
             updateSummary();
@@ -458,8 +618,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const dateLabel = `${dayName}, ${day} ${indonesianMonths[month]} ${year}`;
             const isSelected = (dateStr === selectedDateVal);
 
+            const daySlots = getSlotsForDate(dateStr);
+            const isBlockedDate = window.__STUDIO_SCHEDULE__ && window.__STUDIO_SCHEDULE__[dateStr] && window.__STUDIO_SCHEDULE__[dateStr].is_blocked;
+            const hasAvailableSlots = !isBlockedDate && daySlots.some(s => s.is_available);
+
             if (isPast) {
                 html += `<div class="cal-date is-disabled" title="Sudah lewat">${day}</div>`;
+            } else if (!hasAvailableSlots) {
+                html += `<div class="cal-date is-disabled" title="Penuh / Tidak tersedia">${day}</div>`;
             } else {
                 html += `<div class="cal-date is-available ${isSelected ? 'is-selected' : ''}" data-date="${dateStr}" data-label="${dateLabel}">${day}</div>`;
             }
@@ -482,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (selectedDateInput) selectedDateInput.value = dateEl.dataset.date;
                 currentDateLabel = dateEl.dataset.label;
-                updateSummary();
+                renderTimeSlots(dateEl.dataset.date);
             });
         });
     }
@@ -511,28 +677,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Inisialisasi kalender interaktif
+    // Inisialisasi awal
+    bindSlotEvents();
     renderCalendar(viewYear, viewMonth);
-
-    // Pemilihan Slot Waktu
-    timeSlots.forEach(slot => {
-        slot.addEventListener('click', () => {
-            timeSlots.forEach(s => {
-                s.classList.remove('is-selected');
-                const st = s.querySelector('.slot-status');
-                if (st) st.textContent = 'Tersedia';
-            });
-            slot.classList.add('is-selected');
-            const st = slot.querySelector('.slot-status');
-            if (st) st.textContent = 'Dipilih';
-            const radio = slot.querySelector('.time-radio');
-            if (radio) {
-                radio.checked = true;
-                currentTimeSlot = radio.value;
-            }
-            updateSummary();
-        });
-    });
+    updateSummary();
 
     // Format Otomatis Nomor WhatsApp (Number only & 08 -> +62 8)
     const waInput = document.getElementById('whatsapp');
@@ -594,29 +742,170 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // Kontrol tombol submit berdasarkan checklist persetujuan
+    // ==========================================
+    // VALIDASI FORM & KONTROL TOMBOL SUBMIT
+    // ==========================================
+    const namaInput = document.getElementById('nama_lengkap');
+    const emailInput = document.getElementById('email');
+    const lokasiInput = document.getElementById('lokasi');
     const persetujuanCheckbox = document.getElementById('persetujuanCheckbox');
     const submitBookingBtn = document.getElementById('submitBookingBtn');
+    const bookingForm = document.getElementById('bookingForm');
 
-    if (persetujuanCheckbox && submitBookingBtn) {
-        const updateSubmitState = () => {
-            if (!submitBookingBtn.hasAttribute('data-submitting')) {
-                submitBookingBtn.disabled = !persetujuanCheckbox.checked;
-            }
-        };
-
-        persetujuanCheckbox.addEventListener('change', updateSubmitState);
-        updateSubmitState(); // Jalankan saat pertama kali halaman dimuat
+    function setFieldError(fieldId, errorMsg) {
+        const input = document.getElementById(fieldId);
+        const errEl = document.getElementById(`err_${fieldId}`);
+        if (input) input.classList.add('is-invalid');
+        if (errEl) {
+            errEl.textContent = errorMsg;
+            errEl.style.display = 'block';
+        }
     }
 
-    // Cegah double submission saat klik cepat berkali-kali
-    const bookingForm = document.getElementById('bookingForm');
+    function clearFieldError(fieldId) {
+        const input = document.getElementById(fieldId);
+        const errEl = document.getElementById(`err_${fieldId}`);
+        if (input) input.classList.remove('is-invalid');
+        if (errEl) {
+            errEl.textContent = '';
+            errEl.style.display = 'none';
+        }
+    }
+
+    function isEmailValid(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    }
+
+    function validateForm(showErrors = false) {
+        let isValid = true;
+        let firstInvalid = null;
+
+        // 1. Nama lengkap
+        const namaVal = namaInput ? namaInput.value.trim() : '';
+        if (namaVal.length < 3) {
+            isValid = false;
+            if (showErrors) {
+                setFieldError('nama_lengkap', 'Nama lengkap pemesan wajib diisi (minimal 3 karakter).');
+                if (!firstInvalid) firstInvalid = namaInput;
+            }
+        } else if (showErrors) {
+            clearFieldError('nama_lengkap');
+        }
+
+        // 2. Email
+        const emailVal = emailInput ? emailInput.value.trim() : '';
+        if (!emailVal || !isEmailValid(emailVal)) {
+            isValid = false;
+            if (showErrors) {
+                setFieldError('email', 'Alamat email aktif wajib diisi dengan format valid (contoh: nama@email.com).');
+                if (!firstInvalid) firstInvalid = emailInput;
+            }
+        } else if (showErrors) {
+            clearFieldError('email');
+        }
+
+        // 3. WhatsApp
+        const waClean = waInput ? waInput.value.replace(/[^0-9]/g, '') : '';
+        if (waClean.length < 8) {
+            isValid = false;
+            if (showErrors) {
+                setFieldError('whatsapp', 'Nomor WhatsApp aktif wajib diisi (minimal 8 digit angka).');
+                if (!firstInvalid) firstInvalid = waInput;
+            }
+        } else if (showErrors) {
+            clearFieldError('whatsapp');
+        }
+
+        // 4. Lokasi
+        const lokasiVal = lokasiInput ? lokasiInput.value.trim() : '';
+        if (lokasiVal.length < 3) {
+            isValid = false;
+            if (showErrors) {
+                setFieldError('lokasi', 'Lokasi sesi foto wajib diisi (minimal 3 karakter).');
+                if (!firstInvalid) firstInvalid = lokasiInput;
+            }
+        } else if (showErrors) {
+            clearFieldError('lokasi');
+        }
+
+        // 5. Slot waktu sesi
+        const checkedTime = document.querySelector('input[name="session_time"]:checked');
+        if (!checkedTime || !checkedTime.value) {
+            isValid = false;
+            if (showErrors) {
+                setFieldError('session_time', 'Silakan pilih salah satu slot waktu yang tersedia pada tanggal ini.');
+                if (!firstInvalid) firstInvalid = timeSlotsContainer;
+            }
+        } else if (showErrors) {
+            clearFieldError('session_time');
+        }
+
+        // 6. Checkbox Persetujuan
+        if (!persetujuanCheckbox || !persetujuanCheckbox.checked) {
+            isValid = false;
+            if (showErrors) {
+                setFieldError('persetujuan', 'Anda harus mencentang persetujuan Kebijakan Privasi dan Syarat Pemesanan.');
+                if (!firstInvalid) firstInvalid = persetujuanCheckbox;
+            }
+        } else if (showErrors) {
+            clearFieldError('persetujuan');
+        }
+
+        return { isValid, firstInvalid };
+    }
+
+    // Real-time listener untuk update tombol submit & clear error saat mengetik
+    const formFields = [namaInput, emailInput, waInput, lokasiInput];
+    formFields.forEach(input => {
+        if (!input) return;
+        input.addEventListener('input', () => {
+            clearFieldError(input.id);
+            updateSubmitButtonState();
+        });
+        input.addEventListener('blur', () => {
+            if (input.value.trim() !== '') {
+                validateForm(false);
+            }
+        });
+    });
+
+    if (persetujuanCheckbox) {
+        persetujuanCheckbox.addEventListener('change', () => {
+            clearFieldError('persetujuan');
+            updateSubmitButtonState();
+        });
+    }
+
+    function updateSubmitButtonState() {
+        if (!submitBookingBtn || submitBookingBtn.hasAttribute('data-submitting')) return;
+        const { isValid } = validateForm(false);
+        submitBookingBtn.disabled = !isValid;
+    }
+
+    updateSubmitButtonState();
+
+    // Pencegahan Submit jika ada data wajib belum diisi
     if (bookingForm && submitBookingBtn) {
         bookingForm.addEventListener('submit', function(e) {
+            const { isValid, firstInvalid } = validateForm(true);
+
+            if (!isValid) {
+                e.preventDefault();
+                e.stopPropagation();
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    if (typeof firstInvalid.focus === 'function') {
+                        firstInvalid.focus();
+                    }
+                }
+                return false;
+            }
+
             if (submitBookingBtn.hasAttribute('data-submitting')) {
                 e.preventDefault();
                 return false;
             }
+
             submitBookingBtn.setAttribute('data-submitting', 'true');
             submitBookingBtn.style.opacity = '0.75';
             submitBookingBtn.style.cursor = 'not-allowed';

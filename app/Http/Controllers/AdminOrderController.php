@@ -29,6 +29,8 @@ class AdminOrderController extends Controller
             $query->where('session_status', 'Selesai');
         } elseif ($activeTab === 'arsip') {
             $query->where('session_status', 'Arsip');
+        } elseif ($activeTab === 'draft') {
+            $query->where('session_status', 'Draft');
         }
 
         if (! empty($search)) {
@@ -116,7 +118,7 @@ class AdminOrderController extends Controller
                 default => 'Belum dibayar'
             };
 
-            $latestPayment = $orderModel->payments()->latest()->first();
+            $latestPayment = $orderModel->payments()->latest('id')->first();
             $hasPayment = (bool) $latestPayment && ($orderModel->payment_status !== 'Belum dibayar' || ! empty($latestPayment->proof_file));
 
             $paymentSubmittedDate = '-';
@@ -138,17 +140,24 @@ class AdminOrderController extends Controller
 
                 if (! empty($latestPayment->proof_file)) {
                     $hasRealFile = true;
+                    $cleanProof = ltrim($latestPayment->proof_file, '/');
+                    if (str_starts_with($cleanProof, 'storage/')) {
+                        $cleanProof = substr($cleanProof, 8);
+                    }
+
                     if (filter_var($latestPayment->proof_file, FILTER_VALIDATE_URL)) {
                         $proofFileUrl = $latestPayment->proof_file;
-                    } elseif (file_exists(public_path('images/'.$latestPayment->proof_file))) {
-                        $proofFileUrl = asset('images/'.$latestPayment->proof_file);
                     } else {
-                        $proofFileUrl = asset('storage/'.$latestPayment->proof_file);
+                        $proofFileUrl = route('admin.pembayaran.view-file', ['id' => $latestPayment->payment_code ?: $latestPayment->id]);
                     }
 
                     $proofFileName = $latestPayment->file_original_name ?: basename($latestPayment->proof_file);
                     $ext = strtolower($latestPayment->file_extension ?: pathinfo($proofFileName, PATHINFO_EXTENSION));
+                    if ($ext === 'none' || empty($ext)) {
+                        $ext = strtolower(pathinfo($proofFileName, PATHINFO_EXTENSION));
+                    }
                     $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']);
+                    $isPdf = ($ext === 'pdf') || str_ends_with(strtolower($cleanProof), '.pdf');
                 }
             }
 
@@ -197,6 +206,7 @@ class AdminOrderController extends Controller
                 'proof_file_url' => $proofFileUrl,
                 'proof_file_name' => $proofFileName,
                 'proof_is_image' => $isImage,
+                'proof_is_pdf' => $isPdf ?? false,
                 'bank_source' => $bankSource,
                 'sender_name' => $senderName,
                 'sender_note' => $senderNote,
@@ -268,7 +278,7 @@ class AdminOrderController extends Controller
     public function verifikasiPembayaran(Request $request, $id)
     {
         $order = Order::where('order_code', $id)->orWhere('id', $id)->firstOrFail();
-        $payment = $order->payments()->latest()->first();
+        $payment = $order->payments()->latest('id')->first();
 
         if (! $payment) {
             Payment::create([
@@ -305,7 +315,7 @@ class AdminOrderController extends Controller
     public function verifikasiDanKonfirmasi(Request $request, $id)
     {
         $order = Order::where('order_code', $id)->orWhere('id', $id)->firstOrFail();
-        $payment = $order->payments()->latest()->first();
+        $payment = $order->payments()->latest('id')->first();
 
         if (! $payment) {
             Payment::create([
@@ -343,18 +353,19 @@ class AdminOrderController extends Controller
     public function mintaPerbaikanBukti(Request $request, $id)
     {
         $order = Order::where('order_code', $id)->orWhere('id', $id)->firstOrFail();
-        $payment = $order->payments()->latest()->first();
+        $payment = $order->payments()->latest('id')->first();
         $alasan = $request->input('alasan', 'Bukti transfer tidak terbaca atau kurang jelas. Harap unggah ulang.');
 
         if ($payment) {
             $payment->update([
-                'status' => 'Perlu Perbaikan',
+                'status' => 'Perlu perbaikan',
                 'internal_review_notes' => ($payment->internal_review_notes ? $payment->internal_review_notes."\n" : '').'Permintaan perbaikan: '.$alasan,
             ]);
         }
 
         $order->update([
             'payment_status' => 'Perlu perbaikan',
+            'internal_notes' => $alasan,
         ]);
 
         return redirect()->route('admin.pesanan.detail', ['id' => $order->order_code])
@@ -431,12 +442,40 @@ class AdminOrderController extends Controller
     }
 
     /**
+     * Ubah status sesi pesanan menjadi Draft
+     */
+    public function draftSesi($id)
+    {
+        $order = Order::where('order_code', $id)->orWhere('id', $id)->firstOrFail();
+
+        // Validasi: hanya status sesi selain Dikonfirmasi dan Selesai yang dapat di-draft-kan
+        if (in_array($order->session_status, ['Dikonfirmasi', 'Selesai'])) {
+            return redirect()->back()
+                ->with('error', 'Pesanan dengan status sesi "'.$order->session_status.'" tidak dapat diubah menjadi draft. Hanya data dengan status selain Dikonfirmasi dan Selesai yang dapat di draft kan.');
+        }
+
+        $order->update(['session_status' => 'Draft']);
+
+        // Putus relasi slot studio jika ada
+        $order->studioSlots()->update(['order_id' => null, 'type' => 'available']);
+
+        return redirect()->back()
+            ->with('success', 'Status sesi pesanan '.$order->order_code.' berhasil diubah menjadi Draft.');
+    }
+
+    /**
      * Hapus pesanan permanen (misal duplikat atau pesanan keliru)
      */
     public function destroy($id)
     {
         $order = Order::where('order_code', $id)->orWhere('id', $id)->firstOrFail();
         $code = $order->order_code;
+
+        // Validasi: hanya data dengan status Sesi selain Dikonfirmasi dan Selesai yang dapat dihapus
+        if (in_array($order->session_status, ['Dikonfirmasi', 'Selesai'])) {
+            return redirect()->back()
+                ->with('error', 'Pesanan dengan status sesi "'.$order->session_status.'" tidak dapat dihapus. Hanya data dengan status sesi selain Dikonfirmasi dan Selesai yang dapat dihapus.');
+        }
 
         // Hapus relasi pembayaran dan berkas buktinya jika ada
         foreach ($order->payments as $payment) {

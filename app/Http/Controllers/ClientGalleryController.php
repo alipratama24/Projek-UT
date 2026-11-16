@@ -27,6 +27,32 @@ class ClientGalleryController extends Controller
                 ?? Gallery::with(['photos', 'order'])->latest()->first();
         }
 
+        // Pengecekan Akses Privat dengan Proteksi PIN
+        $isLocked = false;
+        if ($gallery && $gallery->access_type === 'Privat' && ! empty($gallery->pin_code)) {
+            $isAdmin = false;
+            $adminToken = $request->cookie('admin_auth_token');
+            if ($adminToken) {
+                $isAdmin = \App\Models\User::where('remember_token', $adminToken)->exists();
+            }
+
+            $isUnlocked = session("gallery_unlocked_{$gallery->id}") === true;
+
+            // Jika bukan admin dan belum unlock PIN
+            if (! $isAdmin && ! $isUnlocked) {
+                $isLocked = true;
+            }
+        }
+
+        $fallbackImages = [
+            ['file' => 'work-1.jpg', 'title' => 'Keluarga — 01'],
+            ['file' => 'work-2.jpg', 'title' => 'Keluarga — 02'],
+            ['file' => 'work-3.jpg', 'title' => 'Keluarga — 03'],
+            ['file' => 'work-4.jpg', 'title' => 'Keluarga — 04'],
+            ['file' => 'work-5.jpg', 'title' => 'Keluarga — 05'],
+            ['file' => 'work-6.jpg', 'title' => 'Keluarga — 06'],
+        ];
+
         if ($gallery) {
             $order = $gallery->order;
             $data = [
@@ -42,25 +68,64 @@ class ClientGalleryController extends Controller
             $maskedEmail = $order ? substr($order->customer_email, 0, 1).'•••@'.explode('@', $order->customer_email)[1] : 'k•••@gmail.com';
             $maskedPhone = $order ? '+62 8•• •••• '.substr($order->customer_whatsapp, -4) : '+62 8•• •••• 7890';
 
-            $photos = $gallery->photos->map(function ($p, $idx) {
-                $src = $p->photo_path;
-                if (! Str::startsWith($src, ['http://', 'https://'])) {
-                    $src = asset('storage/'.$src);
+            // Resolusi Cover Image yang dijamin selalu muncul
+            $coverFile = $gallery->cover_image ?: 'work-1.jpg';
+            if (! Str::startsWith($coverFile, ['http://', 'https://'])) {
+                if (file_exists(public_path('images/'.$coverFile))) {
+                    $coverImage = asset('images/'.$coverFile);
+                } elseif (Storage::disk('public')->exists($coverFile) || file_exists(public_path('storage/'.$coverFile))) {
+                    $coverImage = asset('storage/'.$coverFile);
+                } else {
+                    $coverImage = asset('images/work-1.jpg');
                 }
+            } else {
+                $coverImage = $coverFile;
+            }
 
-                $title = $p->caption ?: 'Foto — '.str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+            // Jika galeri terkunci PIN, jangan paparkan daftar foto
+            if ($isLocked) {
+                $photos = [];
+            } elseif ($gallery->photos->isNotEmpty()) {
+                $photos = $gallery->photos->map(function ($p, $idx) use ($gallery) {
+                    $src = $p->photo_path;
+                    if (! Str::startsWith($src, ['http://', 'https://'])) {
+                        if (file_exists(public_path('images/'.$src))) {
+                            $src = asset('images/'.$src);
+                        } elseif (Storage::disk('public')->exists($src) || file_exists(public_path('storage/'.$src))) {
+                            $src = asset('storage/'.$src);
+                        } else {
+                            $src = asset('images/work-'.(($idx % 6) + 1).'.jpg');
+                        }
+                    }
 
-                return [
-                    'id' => $p->id,
-                    'img' => $src,
-                    'file' => $p->photo_path,
-                    'title' => $title,
-                    'download_url' => route('galeri-klien.download-photo', [
+                    $title = $p->caption ?: $gallery->title.' — '.str_pad($idx + 1, 2, '0', STR_PAD_LEFT);
+
+                    return [
+                        'id' => $p->id,
+                        'img' => $src,
                         'file' => $p->photo_path,
-                        'name' => $title,
-                    ]),
-                ];
-            })->toArray();
+                        'title' => $title,
+                        'download_url' => route('galeri-klien.download-photo', [
+                            'file' => $p->photo_path,
+                            'name' => $title,
+                        ]),
+                    ];
+                })->toArray();
+            } else {
+                // Fallback foto studio agar tidak pernah kosong / blank
+                $photos = array_map(function ($item, $idx) use ($gallery) {
+                    return [
+                        'id' => $idx + 1,
+                        'img' => asset('images/'.$item['file']),
+                        'file' => $item['file'],
+                        'title' => $gallery->title.' — '.str_pad($idx + 1, 2, '0', STR_PAD_LEFT),
+                        'download_url' => route('galeri-klien.download-photo', [
+                            'file' => $item['file'],
+                            'name' => $gallery->title.' — '.($idx + 1),
+                        ]),
+                    ];
+                }, $fallbackImages, array_keys($fallbackImages));
+            }
         } else {
             $data = session('last_booking', [
                 'order_code' => 'CH-CONTOH-001',
@@ -74,15 +139,7 @@ class ClientGalleryController extends Controller
 
             $maskedEmail = 'a•••@gmail.com';
             $maskedPhone = '+62 8•• •••• 7890';
-
-            $fallbackImages = [
-                ['file' => 'work-1.jpg', 'title' => 'Keluarga — 01'],
-                ['file' => 'work-2.jpg', 'title' => 'Keluarga — 02'],
-                ['file' => 'work-3.jpg', 'title' => 'Keluarga — 03'],
-                ['file' => 'work-4.jpg', 'title' => 'Keluarga — 04'],
-                ['file' => 'work-5.jpg', 'title' => 'Keluarga — 05'],
-                ['file' => 'work-6.jpg', 'title' => 'Keluarga — 06'],
-            ];
+            $coverImage = asset('images/work-1.jpg');
 
             $photos = array_map(function ($item, $idx) {
                 return [
@@ -98,7 +155,29 @@ class ClientGalleryController extends Controller
             }, $fallbackImages, array_keys($fallbackImages));
         }
 
-        return view('galeri-klien', compact('data', 'maskedEmail', 'maskedPhone', 'gallery', 'photos'));
+        return view('galeri-klien', compact('data', 'maskedEmail', 'maskedPhone', 'gallery', 'photos', 'isLocked', 'coverImage'));
+    }
+
+    /**
+     * Verifikasi PIN akses galeri privat
+     */
+    public function verifyPin(Request $request)
+    {
+        $galleryId = $request->input('gallery_id');
+        $pinInput = trim((string) $request->input('pin_code'));
+
+        $gallery = Gallery::findOrFail($galleryId);
+
+        if ($gallery->access_type !== 'Privat' || empty($gallery->pin_code) || $pinInput === (string) $gallery->pin_code) {
+            session(["gallery_unlocked_{$gallery->id}" => true]);
+
+            return redirect()->route('galeri-klien', ['slug' => $gallery->slug])
+                ->with('success', 'PIN berhasil diverifikasi. Selamat menikmati galeri foto pribadi Anda.');
+        }
+
+        return redirect()->route('galeri-klien', ['slug' => $gallery->slug])
+            ->with('error', 'Kode PIN yang Anda masukkan salah. Silakan periksa kembali atau hubungi studio naro capture.')
+            ->withInput();
     }
 
     /**

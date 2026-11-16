@@ -12,6 +12,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookingController;
 use App\Http\Controllers\ClientGalleryController;
 use App\Http\Controllers\OrderTrackingController;
+use App\Models\Gallery;
 use App\Models\Package;
 use Illuminate\Support\Facades\Route;
 
@@ -22,21 +23,58 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
-    // Karya terbaru: 3 kolom (masonry) dengan foto studio asli
-    $columns = [
-        [
-            ['image' => 'work-1.jpg', 'height' => 440, 'title' => 'Ulang Tahun Pertama Si Kecil', 'category' => 'Ulang Tahun & Keluarga'],
-            ['image' => 'work-2.jpg', 'height' => 260, 'title' => 'Tawa Bersama Mannan', 'category' => 'Ulang Tahun'],
-        ],
-        [
-            ['image' => 'work-3.jpg', 'height' => 280, 'title' => 'Pesta Cerita Rumah Uma', 'category' => 'Keluarga & Anak'],
-            ['image' => 'work-4.jpg', 'height' => 420, 'title' => 'Melangkah Bersama di Taman', 'category' => 'Family Outdoor'],
-        ],
-        [
-            ['image' => 'work-5.jpg', 'height' => 300, 'title' => 'Dekorasi Panggung Ulang Tahun Ghaizka', 'category' => 'Event & Dekorasi'],
-            ['image' => 'work-6.jpg', 'height' => 400, 'title' => 'Langkah Kebanggaan Wisuda', 'category' => 'Wisuda & Potret'],
-        ],
+    // 1. Ambil galeri yang telah diterbitkan oleh admin dari database
+    $publishedGalleries = Gallery::with('photos')
+        ->where('status', 'Diterbitkan')
+        ->latest()
+        ->get();
+
+    // Default karya studio bila database belum memiliki banyak galeri
+    $defaultWorks = [
+        ['image' => 'work-1.jpg', 'height' => 440, 'title' => 'Ulang Tahun Pertama Si Kecil', 'category' => 'Ulang Tahun & Keluarga', 'slug' => null, 'is_private' => false],
+        ['image' => 'work-2.jpg', 'height' => 260, 'title' => 'Tawa Bersama Mannan', 'category' => 'Ulang Tahun', 'slug' => null, 'is_private' => false],
+        ['image' => 'work-3.jpg', 'height' => 280, 'title' => 'Pesta Cerita Rumah Uma', 'category' => 'Keluarga & Anak', 'slug' => null, 'is_private' => false],
+        ['image' => 'work-4.jpg', 'height' => 420, 'title' => 'Melangkah Bersama di Taman', 'category' => 'Family Outdoor', 'slug' => null, 'is_private' => false],
+        ['image' => 'work-5.jpg', 'height' => 300, 'title' => 'Dekorasi Panggung Ulang Tahun Ghaizka', 'category' => 'Event & Dekorasi', 'slug' => null, 'is_private' => false],
+        ['image' => 'work-6.jpg', 'height' => 400, 'title' => 'Langkah Kebanggaan Wisuda', 'category' => 'Wisuda & Potret', 'slug' => null, 'is_private' => false],
     ];
+
+    $allWorks = [];
+    $heightCycle = [420, 280, 340, 400, 300, 440];
+    $idx = 0;
+
+    // Masukkan galeri yang telah diterbitkan admin
+    foreach ($publishedGalleries as $g) {
+        $firstPhoto = $g->photos->first();
+        $img = 'work-' . (($idx % 6) + 1) . '.jpg';
+        if ($firstPhoto && !empty($firstPhoto->photo_path)) {
+            $img = $firstPhoto->photo_path;
+        } elseif (!empty($g->cover_image)) {
+            $img = $g->cover_image;
+        }
+
+        $allWorks[] = [
+            'image' => $img,
+            'height' => $heightCycle[$idx % count($heightCycle)],
+            'title' => $g->title,
+            'category' => 'Klien: ' . $g->client_name,
+            'slug' => $g->slug,
+            'is_private' => ($g->access_type === 'Privat'),
+            'gallery_id' => $g->id,
+        ];
+        $idx++;
+    }
+
+    // Sertakan juga default works
+    foreach ($defaultWorks as $dw) {
+        $allWorks[] = $dw;
+    }
+
+    // Distribusikan ke dalam 3 kolom masonry
+    $columns = [[], [], []];
+    foreach ($allWorks as $i => $item) {
+        $columns[$i % 3][] = $item;
+    }
 
     // Ambil dari database dengan fallback
     $dbPackages = Package::where('is_active', true)->get();
@@ -149,6 +187,7 @@ Route::get('/cek-pesanan', [OrderTrackingController::class, 'show'])->name('cek-
 
 // Galeri Klien Publik
 Route::get('/galeri-klien', [ClientGalleryController::class, 'index'])->name('galeri-klien');
+Route::post('/galeri-klien/verify-pin', [ClientGalleryController::class, 'verifyPin'])->name('galeri-klien.verify-pin');
 Route::get('/galeri-klien/unduh-foto', [ClientGalleryController::class, 'downloadPhoto'])->name('galeri-klien.download-photo');
 Route::get('/galeri-klien/unduh-semua', [ClientGalleryController::class, 'downloadAll'])->name('galeri-klien.download-all');
 
@@ -183,12 +222,14 @@ Route::prefix('admin')->group(function () {
         Route::post('/pesanan/{id}/minta-perbaikan-bukti', [AdminOrderController::class, 'mintaPerbaikanBukti'])->name('admin.pesanan.minta-perbaikan-bukti');
         Route::post('/pesanan/{id}/batalkan-sesi', [AdminOrderController::class, 'batalkanSesi'])->name('admin.pesanan.batalkan-sesi');
         Route::post('/pesanan/{id}/arsipkan-sesi', [AdminOrderController::class, 'arsipkanSesi'])->name('admin.pesanan.arsipkan-sesi');
+        Route::post('/pesanan/{id}/draft', [AdminOrderController::class, 'draftSesi'])->name('admin.pesanan.draft');
         Route::delete('/pesanan/{id}', [AdminOrderController::class, 'destroy'])->name('admin.pesanan.destroy');
 
         // Pembayaran
         Route::get('/pembayaran', [AdminPaymentController::class, 'index'])->name('admin.pembayaran');
         Route::post('/pembayaran/manual', [AdminPaymentController::class, 'storeManual'])->name('admin.pembayaran.manual');
         Route::get('/pembayaran/{id}', [AdminPaymentController::class, 'show'])->name('admin.pembayaran.detail');
+        Route::get('/pembayaran/{id}/berkas', [AdminPaymentController::class, 'viewFile'])->name('admin.pembayaran.view-file');
         Route::post('/pembayaran/{id}/verifikasi', [AdminPaymentController::class, 'verifikasi'])->name('admin.pembayaran.verifikasi-action');
         Route::post('/pembayaran/{id}/minta-perbaikan', [AdminPaymentController::class, 'mintaPerbaikan'])->name('admin.pembayaran.minta-perbaikan');
         Route::post('/pembayaran/{id}/catatan', [AdminPaymentController::class, 'updateCatatan'])->name('admin.pembayaran.catatan');

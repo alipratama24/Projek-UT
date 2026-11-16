@@ -91,7 +91,7 @@
                                     {{ $data['internal_notes'] ?? 'Bukti pembayaran yang Anda kirimkan memerlukan perbaikan. Silakan unggah kembali bukti transfer yang lebih jelas.' }}
                                 </p>
                                 <div style="margin-top: 14px;">
-                                    <a href="{{ route('konfirmasi') }}" class="btn btn--fill btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                                    <a href="{{ route('konfirmasi', ['order' => $data['order_code']]) }}" class="btn btn--fill btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
                                         Unggah Ulang Bukti Pembayaran @include('partials.arrow')
                                     </a>
                                 </div>
@@ -105,7 +105,7 @@
                                     Silakan lakukan pembayaran sesuai instruksi invoice dan unggah bukti transfer agar pesanan Anda dapat diproses studio.
                                 </p>
                                 <div style="margin-top: 14px;">
-                                    <a href="{{ route('konfirmasi') }}" class="btn btn--fill btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                                    <a href="{{ route('konfirmasi', ['order' => $data['order_code']]) }}" class="btn btn--fill btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
                                         Konfirmasi Pembayaran Sekarang @include('partials.arrow')
                                     </a>
                                 </div>
@@ -325,11 +325,11 @@
                         <div class="tracking-doc-section">
                             <h4 class="subheader-title font-13 font-medium">Dokumen pesanan</h4>
                             <div class="tracking-doc-actions">
-                                <a href="{{ route('checkout') }}" class="btn btn--outline btn-sm">
+                                <a href="{{ route('checkout', ['order' => $data['order_code']]) }}" class="btn btn--outline btn-sm">
                                     {{ $statusKey === 'dikonfirmasi' ? 'Lihat invoice lunas' : 'Lihat invoice' }} @include('partials.arrow')
                                 </a>
                                 @if(in_array($statusKey, ['dikonfirmasi', 'sedang-diperiksa', 'perbaikan-bukti']))
-                                    <a href="{{ route('konfirmasi', ['status' => 'success']) }}" class="btn btn--outline btn-sm">
+                                    <a href="{{ route('konfirmasi', ['order' => $data['order_code'], 'status' => 'success']) }}" class="btn btn--outline btn-sm">
                                         Lihat bukti terkirim @include('partials.arrow')
                                     </a>
                                 @endif

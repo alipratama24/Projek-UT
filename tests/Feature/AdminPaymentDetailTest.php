@@ -110,6 +110,53 @@ class AdminPaymentDetailTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('struk_pembayaran_asli.pdf');
         $response->assertSee('Buka berkas di tab baru ↗');
+        $response->assertSee('<iframe', false);
+        $response->assertSee('Unduh dokumen ↓');
+        $response->assertDontSee('No Data / Tidak Ada Berkas');
+    }
+
+    public function test_payment_detail_displays_image_preview_when_image_file_exists(): void
+    {
+        $this->authenticateAdmin();
+        Storage::fake('public');
+
+        $fakeFile = UploadedFile::fake()->image('struk_bca.jpg', 600, 800);
+        $storedPath = $fakeFile->store('payments', 'public');
+
+        $order = Order::create([
+            'order_code' => 'ORD-TEST-003',
+            'invoice_number' => 'INV-TEST-003',
+            'package_name' => 'Graduation Session',
+            'customer_name' => 'Dimas Wicaksono',
+            'customer_email' => 'dimas@test.com',
+            'customer_whatsapp' => '081211112222',
+            'total_price' => 1500000,
+            'session_date' => '2026-10-23',
+            'session_time_slot' => '10:00 - 11:30 WIB',
+            'location' => 'Studio Utama naro capture',
+            'payment_status' => 'Bukti terkirim',
+            'session_status' => 'Menunggu pembayaran',
+        ]);
+
+        $payment = Payment::create([
+            'payment_code' => 'BYR-TEST-003',
+            'order_id' => $order->id,
+            'sender_name' => 'Dimas Wicaksono',
+            'transfer_date' => now()->toDateString(),
+            'bank_source' => 'BCA',
+            'nominal' => 1500000,
+            'proof_file' => $storedPath,
+            'file_original_name' => 'struk_bca.jpg',
+            'file_extension' => 'JPG',
+            'status' => 'Bukti terkirim',
+        ]);
+
+        $response = $this->get('/admin/pembayaran/'.$payment->payment_code);
+
+        $response->assertStatus(200);
+        $response->assertSee('struk_bca.jpg');
+        $response->assertSee('Buka berkas di tab baru ↗');
+        $response->assertSee('<img src="', false);
         $response->assertDontSee('No Data / Tidak Ada Berkas');
     }
 

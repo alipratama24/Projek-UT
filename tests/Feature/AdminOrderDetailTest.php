@@ -313,4 +313,117 @@ class AdminOrderDetailTest extends TestCase
         $response->assertSee('5678');
         $response->assertSee('Terbitkan Galeri Sekarang');
     }
+
+    public function test_only_orders_with_session_status_other_than_confirmed_and_completed_can_be_deleted(): void
+    {
+        $this->authenticateAdmin();
+
+        // 1. Order dengan status Permintaan (BISA dihapus)
+        $orderPermintaan = Order::create([
+            'order_code' => 'CH-TEST-PERMINTAAN',
+            'invoice_number' => 'INV-TEST-PERMINTAAN',
+            'package_name' => 'Graduation Session',
+            'customer_name' => 'Faris',
+            'customer_email' => 'faris@test.com',
+            'customer_whatsapp' => '08123456789',
+            'session_date' => '2026-11-20',
+            'session_time_slot' => '10.00–11.00 WIB',
+            'location' => 'Studio Utama naro capture',
+            'session_status' => 'Permintaan',
+            'payment_status' => 'Belum dibayar',
+            'total_price' => 1500000,
+        ]);
+
+        $deleteResponse1 = $this->delete('/admin/pesanan/'.$orderPermintaan->order_code);
+        $deleteResponse1->assertRedirect(route('admin.pesanan'));
+        $deleteResponse1->assertSessionHas('success');
+        $this->assertDatabaseMissing('orders', ['id' => $orderPermintaan->id]);
+
+        // 2. Order dengan status Dikonfirmasi (TIDAK BISA dihapus)
+        $orderDikonfirmasi = Order::create([
+            'order_code' => 'CH-TEST-CONFIRMED',
+            'invoice_number' => 'INV-TEST-CONFIRMED',
+            'package_name' => 'Family Session',
+            'customer_name' => 'Budi Utomo',
+            'customer_email' => 'budi@test.com',
+            'customer_whatsapp' => '08123456788',
+            'session_date' => '2026-11-21',
+            'session_time_slot' => '13.00–14.30 WIB',
+            'location' => 'Studio Utama naro capture',
+            'session_status' => 'Dikonfirmasi',
+            'payment_status' => 'Terverifikasi',
+            'total_price' => 2450000,
+        ]);
+
+        $deleteResponse2 = $this->delete('/admin/pesanan/'.$orderDikonfirmasi->order_code);
+        $deleteResponse2->assertSessionHas('error');
+        $this->assertDatabaseHas('orders', ['id' => $orderDikonfirmasi->id]);
+
+        // 3. Order dengan status Selesai (TIDAK BISA dihapus)
+        $orderSelesai = Order::create([
+            'order_code' => 'CH-TEST-SELESAI',
+            'invoice_number' => 'INV-TEST-SELESAI',
+            'package_name' => 'Prewedding Session',
+            'customer_name' => 'Andi & Sari',
+            'customer_email' => 'andi@test.com',
+            'customer_whatsapp' => '08123456787',
+            'session_date' => '2026-11-22',
+            'session_time_slot' => '15.00–18.00 WIB',
+            'location' => 'Studio Utama naro capture',
+            'session_status' => 'Selesai',
+            'payment_status' => 'Terverifikasi',
+            'total_price' => 4800000,
+        ]);
+
+        $deleteResponse3 = $this->delete('/admin/pesanan/'.$orderSelesai->order_code);
+        $deleteResponse3->assertSessionHas('error');
+        $this->assertDatabaseHas('orders', ['id' => $orderSelesai->id]);
+    }
+
+    public function test_only_orders_with_session_status_other_than_confirmed_and_completed_can_be_drafted(): void
+    {
+        $this->authenticateAdmin();
+
+        // 1. Order Permintaan -> bisa di-draft-kan
+        $order = Order::create([
+            'order_code' => 'CH-TEST-TO-DRAFT',
+            'invoice_number' => 'INV-TEST-DRAFT',
+            'package_name' => 'Birthday',
+            'customer_name' => 'Lala',
+            'customer_email' => 'lala@test.com',
+            'customer_whatsapp' => '08123456789',
+            'session_date' => '2026-11-23',
+            'session_time_slot' => '09.00–10.00 WIB',
+            'location' => 'Studio Utama naro capture',
+            'session_status' => 'Permintaan',
+            'payment_status' => 'Belum dibayar',
+            'total_price' => 1250000,
+        ]);
+
+        $draftResponse = $this->post('/admin/pesanan/'.$order->order_code.'/draft');
+        $draftResponse->assertSessionHas('success');
+        $order->refresh();
+        $this->assertEquals('Draft', $order->session_status);
+
+        // 2. Order Dikonfirmasi -> tidak bisa di-draft-kan
+        $orderConfirmed = Order::create([
+            'order_code' => 'CH-TEST-CONF-DRAFT',
+            'invoice_number' => 'INV-TEST-CONF-DRAFT',
+            'package_name' => 'Family Session',
+            'customer_name' => 'Rina',
+            'customer_email' => 'rina@test.com',
+            'customer_whatsapp' => '08123456788',
+            'session_date' => '2026-11-24',
+            'session_time_slot' => '13.00–14.30 WIB',
+            'location' => 'Studio Utama naro capture',
+            'session_status' => 'Dikonfirmasi',
+            'payment_status' => 'Terverifikasi',
+            'total_price' => 2450000,
+        ]);
+
+        $draftResponse2 = $this->post('/admin/pesanan/'.$orderConfirmed->order_code.'/draft');
+        $draftResponse2->assertSessionHas('error');
+        $orderConfirmed->refresh();
+        $this->assertEquals('Dikonfirmasi', $orderConfirmed->session_status);
+    }
 }

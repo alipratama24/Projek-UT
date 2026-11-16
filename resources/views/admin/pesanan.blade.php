@@ -12,6 +12,18 @@
         </div>
     </div>
 
+    {{-- FEEDBACK NOTICE --}}
+    @if(session('success'))
+        <div class="admin-alert-box alert-success-box" style="margin-bottom: 16px; padding: 12px 16px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 6px; color: #065F46; font-size: 13px;">
+            <strong>Berhasil:</strong> {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="admin-alert-box alert-danger-box" style="margin-bottom: 16px; padding: 12px 16px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 6px; color: #991B1B; font-size: 13px;">
+            <strong>Perhatian:</strong> {{ session('error') }}
+        </div>
+    @endif
+
     {{-- BARIS KONTEN METRIK STATUS (FIGMA 141:1046) --}}
     <div class="admin-status-summary-bar">
         <span class="status-indicator-item text-blue">● {{ $totalOrdersCount ?? count($orders) }} total pesanan</span>
@@ -38,6 +50,9 @@
             </a>
             <a href="{{ route('admin.pesanan', ['tab' => 'arsip']) }}" class="admin-tab-item {{ $activeTab === 'arsip' ? 'is-active' : '' }}">
                 Arsip
+            </a>
+            <a href="{{ route('admin.pesanan', ['tab' => 'draft']) }}" class="admin-tab-item {{ $activeTab === 'draft' ? 'is-active' : '' }}">
+                Draft
             </a>
         </div>
 
@@ -75,11 +90,14 @@
                         <th style="width: 18%;">Jadwal WIB</th>
                         <th style="width: 14%;">Sesi</th>
                         <th style="width: 14%;">Pembayaran</th>
-                        <th style="width: 8%; text-align: right;">Aksi</th>
+                        <th style="width: 12%; text-align: right;">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
                     @forelse($orders as $item)
+                        @php
+                            $canDeleteOrDraft = !in_array($item['session_status'], ['Dikonfirmasi', 'Selesai']);
+                        @endphp
                         <tr>
                             <td>
                                 <div class="table-cell-order">
@@ -110,17 +128,35 @@
                                 </span>
                             </td>
                             <td style="text-align: right; white-space: nowrap;">
-                                <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 8px;">
-                                    <a href="{{ route('admin.pesanan.detail', ['id' => $item['code']]) }}" class="admin-table-action-link" style="white-space: nowrap;">
+                                <div style="display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px;">
+                                    <a href="{{ route('admin.pesanan.detail', ['id' => $item['code']]) }}" class="admin-table-action-link" style="white-space: nowrap; font-size: 12px; padding: 4px 6px;">
                                         Detail →
                                     </a>
-                                    <form action="{{ route('admin.pesanan.destroy', ['id' => $item['code']]) }}" method="POST" onsubmit="return confirm('Hapus pesanan {{ $item['code'] }} secara permanen?')" style="display:inline; margin:0;">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" style="background:none; border:none; color:#DC2626; cursor:pointer; font-size:13px; padding:2px 4px; line-height:1; vertical-align:middle;" title="Hapus pesanan (misal duplikat)">
-                                            ✕
+
+                                    @if($canDeleteOrDraft)
+                                        @if($item['session_status'] !== 'Draft')
+                                            <form action="{{ route('admin.pesanan.draft', ['id' => $item['code']]) }}" method="POST" onsubmit="return confirm('Ubah status pesanan {{ $item['code'] }} menjadi Draft?')" style="display:inline; margin:0;">
+                                                @csrf
+                                                <button type="submit" style="background:#F1F5F9; border:1px solid #CBD5E1; color:#475569; cursor:pointer; font-size:11px; font-weight:500; padding:4px 7px; border-radius:4px; display:inline-flex; align-items:center;" title="Ubah status pesanan menjadi Draft">
+                                                    Draft
+                                                </button>
+                                            </form>
+                                        @endif
+
+                                        <form action="{{ route('admin.pesanan.destroy', ['id' => $item['code']]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pesanan {{ $item['code'] }} secara permanen?')" style="display:inline; margin:0;">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" style="background:#FEF2F2; border:1px solid #FECACA; color:#DC2626; cursor:pointer; font-size:11px; font-weight:600; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:3px;" title="Hapus pesanan {{ $item['code'] }}">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button type="button" disabled style="background:#F3F4F6; border:1px solid #E5E7EB; color:#9CA3AF; cursor:not-allowed; font-size:11px; font-weight:500; padding:4px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:3px;" title="Status sesi {{ $item['session_status'] }} terkunci dan tidak dapat dihapus atau di-draft-kan">
+                                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path></svg>
+                                            Hapus
                                         </button>
-                                    </form>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

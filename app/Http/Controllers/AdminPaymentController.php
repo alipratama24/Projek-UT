@@ -180,7 +180,17 @@ class AdminPaymentController extends Controller
         }
 
         // 2. Cari Payment lewat order_code atau invoice_number pada relasi order
+        // Prioritaskan pembayaran yang memiliki lampiran berkas bukti fisik
         $payment = Payment::with('order.package')
+            ->whereHas('order', function ($q) use ($id) {
+                $q->where('order_code', $id)
+                    ->orWhere('invoice_number', $id);
+            })
+            ->whereNotNull('proof_file')
+            ->where('proof_file', '!=', '')
+            ->latest()
+            ->first()
+            ?? Payment::with('order.package')
             ->whereHas('order', function ($q) use ($id) {
                 $q->where('order_code', $id)
                     ->orWhere('invoice_number', $id);
@@ -200,7 +210,7 @@ class AdminPaymentController extends Controller
             ->first();
 
         if ($order) {
-            $payment = $order->payments()->latest()->first();
+            $payment = $order->payments()->latest('id')->first();
 
             return [$payment, $order];
         }
@@ -226,26 +236,42 @@ class AdminPaymentController extends Controller
             }
 
             // Cek apakah berkas fisik benar-benar ada di storage / disk
+            $targetPayment = $paymentModel;
+            if (empty($targetPayment->proof_file) && $order) {
+                $altPayment = $order->payments()->whereNotNull('proof_file')->where('proof_file', '!=', '')->latest()->first();
+                if ($altPayment) {
+                    $targetPayment = $altPayment;
+                }
+            }
+
             $hasRealFile = false;
             $fileUrl = null;
             $fileName = null;
             $fileMeta = null;
             $isImage = false;
+            $isPdf = false;
 
-            if (! empty($paymentModel->proof_file)) {
+            if (! empty($targetPayment->proof_file)) {
                 $hasRealFile = true;
-                if (filter_var($paymentModel->proof_file, FILTER_VALIDATE_URL)) {
-                    $fileUrl = $paymentModel->proof_file;
-                } elseif (file_exists(public_path('images/'.$paymentModel->proof_file))) {
-                    $fileUrl = asset('images/'.$paymentModel->proof_file);
-                } else {
-                    $fileUrl = asset('storage/'.$paymentModel->proof_file);
+                $cleanProof = ltrim($targetPayment->proof_file, '/');
+                if (str_starts_with($cleanProof, 'storage/')) {
+                    $cleanProof = substr($cleanProof, 8);
                 }
 
-                $fileName = $paymentModel->file_original_name ?: basename($paymentModel->proof_file);
-                $ext = strtoupper($paymentModel->file_extension ?: pathinfo($fileName, PATHINFO_EXTENSION));
-                $fileMeta = ($ext ?: 'BERKAS').' · Bukti Unggahan Pelanggan';
-                $isImage = in_array(strtolower($ext), ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg']);
+                if (filter_var($targetPayment->proof_file, FILTER_VALIDATE_URL)) {
+                    $fileUrl = $targetPayment->proof_file;
+                } else {
+                    $fileUrl = route('admin.pembayaran.view-file', ['id' => $targetPayment->payment_code ?: $targetPayment->id]);
+                }
+
+                $fileName = $targetPayment->file_original_name ?: basename($targetPayment->proof_file);
+                $ext = strtolower($targetPayment->file_extension ?: pathinfo($fileName, PATHINFO_EXTENSION));
+                if ($ext === 'none' || empty($ext)) {
+                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                }
+                $fileMeta = strtoupper($ext ?: 'BERKAS').' · Bukti Unggahan Pelanggan';
+                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp']);
+                $isPdf = ($ext === 'pdf') || str_ends_with(strtolower($cleanProof), '.pdf');
             }
 
             $payment = [
@@ -254,9 +280,12 @@ class AdminPaymentController extends Controller
                 'status_badge' => $paymentModel->status === 'Terverifikasi' ? 'Terverifikasi' : ($paymentModel->status ?: 'Bukti terkirim · Belum terverifikasi'),
                 'has_file' => $hasRealFile,
                 'is_image' => $isImage,
+                'is_pdf' => $isPdf,
                 'file_name' => $fileName,
                 'file_meta' => $fileMeta,
                 'file_path' => $fileUrl,
+                'clean_proof' => $cleanProof ?? null,
+                'storage_url' => isset($cleanProof) ? asset('storage/'.$cleanProof) : null,
                 'transfer_date' => $transferDate,
                 'bank_source' => $paymentModel->bank_source ?? 'Transfer Bank',
                 'nominal' => 'Rp'.number_format($paymentModel->nominal, 0, ',', '.'),
@@ -274,19 +303,55 @@ class AdminPaymentController extends Controller
                 $scheduleStr = $order->session_date->format('d M Y').' · '.$order->session_time_slot;
             }
 
+            $orderPayment = $order->payments()->whereNotNull('proof_file')->where('proof_file', '!=', '')->latest('id')->first()
+                ?: $order->payments()->latest('id')->first();
+
+            $hasRealFile = false;
+            $fileUrl = null;
+            $fileName = null;
+            $fileMeta = null;
+            $isImage = false;
+            $isPdf = false;
+
+            if ($orderPayment && ! empty($orderPayment->proof_file)) {
+                $hasRealFile = true;
+                $cleanProof = ltrim($orderPayment->proof_file, '/');
+                if (str_starts_with($cleanProof, 'storage/')) {
+                    $cleanProof = substr($cleanProof, 8);
+                }
+
+                if (filter_var($orderPayment->proof_file, FILTER_VALIDATE_URL)) {
+                    $fileUrl = $orderPayment->proof_file;
+                } else {
+                    $fileUrl = route('admin.pembayaran.view-file', ['id' => $orderPayment->payment_code ?: $order->order_code]);
+                }
+
+                $fileName = $orderPayment->file_original_name ?: basename($orderPayment->proof_file);
+                $ext = strtolower($orderPayment->file_extension ?: pathinfo($fileName, PATHINFO_EXTENSION));
+                if ($ext === 'none' || empty($ext)) {
+                    $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+                }
+                $fileMeta = strtoupper($ext ?: 'BERKAS').' · Bukti Unggahan Pelanggan';
+                $isImage = in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg', 'bmp']);
+                $isPdf = ($ext === 'pdf') || str_ends_with(strtolower($cleanProof), '.pdf');
+            }
+
             $payment = [
                 'id' => $order->order_code,
                 'sender' => $order->customer_name,
                 'status_badge' => $order->payment_status ?: 'Belum dibayar',
-                'has_file' => false,
-                'is_image' => false,
-                'file_name' => null,
-                'file_meta' => null,
-                'file_path' => null,
+                'has_file' => $hasRealFile,
+                'is_image' => $isImage,
+                'is_pdf' => $isPdf,
+                'file_name' => $fileName,
+                'file_meta' => $fileMeta,
+                'file_path' => $fileUrl,
+                'clean_proof' => $cleanProof ?? null,
+                'storage_url' => isset($cleanProof) ? asset('storage/'.$cleanProof) : null,
                 'transfer_date' => $order->created_at ? $order->created_at->format('d F Y') : date('d F Y'),
-                'bank_source' => 'Menunggu Pembayaran',
-                'nominal' => 'Rp'.number_format($order->total_price, 0, ',', '.'),
-                'sender_note' => $order->customer_notes ?? 'Belum ada catatan transfer dari pelanggan.',
+                'bank_source' => $orderPayment ? ($orderPayment->bank_source ?? 'Transfer Bank') : 'Menunggu Pembayaran',
+                'nominal' => 'Rp'.number_format($orderPayment ? $orderPayment->nominal : $order->total_price, 0, ',', '.'),
+                'sender_note' => $orderPayment ? ($orderPayment->sender_notes ?? $order->customer_notes) : ($order->customer_notes ?? 'Belum ada catatan transfer dari pelanggan.'),
                 'submitted_at' => $order->created_at ? $order->created_at->format('d M Y, H.i \W\I\B') : date('d M Y, H.i \W\I\B'),
                 'invoice' => $order->invoice_number,
                 'order_code' => $order->order_code,
@@ -455,5 +520,46 @@ class AdminPaymentController extends Controller
 
         return redirect()->route('admin.pembayaran.detail', ['id' => $id])
             ->with('success', 'Catatan internal pembayaran '.$id.' berhasil diperbarui.');
+    }
+
+    /**
+     * Tampilkan atau streaming langsung berkas bukti fisik pembayaran
+     */
+    public function viewFile($id)
+    {
+        [$payment, $order] = $this->resolvePaymentOrOrder($id);
+        $targetPayment = $payment;
+        if ((! $targetPayment || empty($targetPayment->proof_file)) && $order) {
+            $targetPayment = $order->payments()->whereNotNull('proof_file')->where('proof_file', '!=', '')->latest()->first();
+        }
+
+        if (! $targetPayment || empty($targetPayment->proof_file)) {
+            abort(404, 'Berkas bukti pembayaran tidak ditemukan.');
+        }
+
+        $proof = $targetPayment->proof_file;
+        $cleanProof = ltrim($proof, '/');
+        if (str_starts_with($cleanProof, 'storage/')) {
+            $cleanProof = substr($cleanProof, 8);
+        }
+
+        $fullPath = null;
+        if (Storage::disk('public')->exists($cleanProof)) {
+            $fullPath = Storage::disk('public')->path($cleanProof);
+        } elseif (file_exists(public_path('images/'.$proof))) {
+            $fullPath = public_path('images/'.$proof);
+        } elseif (file_exists(public_path('storage/'.$cleanProof))) {
+            $fullPath = public_path('storage/'.$cleanProof);
+        } elseif (file_exists(storage_path('app/public/'.$cleanProof))) {
+            $fullPath = storage_path('app/public/'.$cleanProof);
+        }
+
+        if (! $fullPath || ! file_exists($fullPath)) {
+            abort(404, 'Berkas fisik tidak ditemukan di server.');
+        }
+
+        return response()->file($fullPath, [
+            'Cache-Control' => 'no-store, no-cache, must-revalidate',
+        ]);
     }
 }

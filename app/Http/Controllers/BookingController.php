@@ -6,6 +6,7 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\Package;
 use App\Models\Payment;
+use App\Models\StudioSlot;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,11 +15,151 @@ use Illuminate\Support\Str;
 class BookingController extends Controller
 {
     /**
+     * Dapatkan peta jadwal dan ketersediaan slot studio berdasarkan data admin di StudioSlot & Order aktif
+     */
+    private function getScheduleMap(): array
+    {
+        // 1. Ambil semua StudioSlot
+        $studioSlots = StudioSlot::orderBy('date')->orderBy('start_time')->get();
+
+        // 2. Ambil semua Order aktif
+        $activeOrders = Order::whereNotNull('session_date')
+            ->whereNotIn('session_status', ['Dibatalkan'])
+            ->get();
+
+        $scheduleMap = [];
+
+        // Petakan slot studio yang diinput admin
+        foreach ($studioSlots as $slot) {
+            $dateStr = $slot->date ? $slot->date->format('Y-m-d') : null;
+            if (! $dateStr) {
+                continue;
+            }
+
+            $startClean = substr($slot->start_time, 0, 5);
+            $startFormatted = str_replace(':', '.', $startClean);
+            $endClean = substr($slot->end_time, 0, 5);
+            $endFormatted = str_replace(':', '.', $endClean);
+
+            $statusLabel = match ($slot->type) {
+                'available' => 'Tersedia',
+                'booked' => 'Penuh',
+                'blocked' => 'Blokir',
+                default => 'Tersedia'
+            };
+
+            $isAvailable = ($slot->type === 'available');
+
+            if (! isset($scheduleMap[$dateStr])) {
+                $scheduleMap[$dateStr] = [
+                    'has_custom_slots' => true,
+                    'is_blocked' => false,
+                    'slots' => [],
+                ];
+            }
+
+            $scheduleMap[$dateStr]['slots'][] = [
+                'time' => $startFormatted,
+                'end_time' => $endFormatted,
+                'time_display' => "{$startFormatted}–{$endFormatted}",
+                'status' => $statusLabel,
+                'is_available' => $isAvailable,
+                'type' => $slot->type,
+                'note' => $slot->note,
+            ];
+
+            if ($slot->type === 'blocked' && (empty($slot->start_time) || ($slot->start_time <= '09:00:00' && $slot->end_time >= '17:00:00'))) {
+                $scheduleMap[$dateStr]['is_blocked'] = true;
+            }
+        }
+
+        // Petakan juga pesanan aktif dari pelanggan
+        foreach ($activeOrders as $ord) {
+            $dateStr = $ord->session_date ? $ord->session_date->format('Y-m-d') : null;
+            if (! $dateStr) {
+                continue;
+            }
+
+            // Ekstrak jam mulai, misal "15.30–17.00 WIB" -> "15.30"
+            if (preg_match('/^(\d{1,2}[:.]\d{2})/u', $ord->session_time_slot, $m)) {
+                $ordStart = str_replace(':', '.', $m[1]);
+
+                if (isset($scheduleMap[$dateStr])) {
+                    $matched = false;
+                    foreach ($scheduleMap[$dateStr]['slots'] as &$slotItem) {
+                        if ($slotItem['time'] === $ordStart) {
+                            $slotItem['is_available'] = false;
+                            $slotItem['status'] = 'Penuh';
+                            $slotItem['type'] = 'booked';
+                            $matched = true;
+                        }
+                    }
+                    unset($slotItem);
+
+                    if (! $matched) {
+                        $scheduleMap[$dateStr]['slots'][] = [
+                            'time' => $ordStart,
+                            'end_time' => null,
+                            'time_display' => $ordStart,
+                            'status' => 'Penuh',
+                            'is_available' => false,
+                            'type' => 'booked',
+                            'note' => 'Sesi '.$ord->customer_name,
+                        ];
+                    }
+                } else {
+                    $defaultSlots = [
+                        ['time' => '09.00', 'end_time' => '10.30', 'time_display' => '09.00', 'status' => 'Tersedia', 'is_available' => true, 'type' => 'available'],
+                        ['time' => '13.00', 'end_time' => '14.30', 'time_display' => '13.00', 'status' => 'Tersedia', 'is_available' => true, 'type' => 'available'],
+                        ['time' => '15.30', 'end_time' => '17.00', 'time_display' => '15.30', 'status' => 'Tersedia', 'is_available' => true, 'type' => 'available'],
+                    ];
+                    foreach ($defaultSlots as &$ds) {
+                        if ($ds['time'] === $ordStart) {
+                            $ds['is_available'] = false;
+                            $ds['status'] = 'Penuh';
+                            $ds['type'] = 'booked';
+                        }
+                    }
+                    unset($ds);
+
+                    $scheduleMap[$dateStr] = [
+                        'has_custom_slots' => false,
+                        'is_blocked' => false,
+                        'slots' => $defaultSlots,
+                    ];
+                }
+            }
+        }
+
+        return $scheduleMap;
+    }
+
+    /**
+     * Dapatkan daftar slot untuk tanggal tertentu
+     */
+    private function getSlotsForDate(string $dateStr, array $scheduleMap): array
+    {
+        if (isset($scheduleMap[$dateStr]) && ! empty($scheduleMap[$dateStr]['slots'])) {
+            return $scheduleMap[$dateStr]['slots'];
+        }
+
+        // Default studio slots
+        return [
+            ['time' => '09.00', 'end_time' => '10.30', 'time_display' => '09.00', 'status' => 'Tersedia', 'is_available' => true, 'type' => 'available'],
+            ['time' => '13.00', 'end_time' => '14.30', 'time_display' => '13.00', 'status' => 'Tersedia', 'is_available' => true, 'type' => 'available'],
+            ['time' => '15.30', 'end_time' => '17.00', 'time_display' => '15.30', 'status' => 'Tersedia', 'is_available' => true, 'type' => 'available'],
+        ];
+    }
+
+    /**
      * Tampilkan halaman formulir pemesanan publik
      */
     public function create(Request $request)
     {
-        $dbPackages = Package::where('is_active', true)->get();
+        $dbPackages = Package::where('is_active', true)
+            ->orderBy('sort_order')
+            ->orderBy('id')
+            ->get();
 
         $packages = $dbPackages->map(function ($pkg) {
             $imageMap = [
@@ -43,7 +184,7 @@ class BookingController extends Controller
                 'raw_price' => $pkg->price,
                 'duration' => $pkg->duration_minutes ?? 60,
                 'duration_label' => $pkg->duration,
-                'location_note' => $locationNotes[$pkg->slug] ?? ($pkg->tagline ?: 'Satu lokasi pilihan Anda.'),
+                'location_note' => $pkg->tagline ?: ($locationNotes[$pkg->slug] ?? 'Satu lokasi pilihan Anda.'),
                 'image' => $imageMap[$pkg->slug] ?? ($pkg->image ?: 'paket-birthday.jpg'),
                 'desc' => $pkg->description,
                 'items' => is_array($pkg->features) ? $pkg->features : [],
@@ -129,11 +270,25 @@ class BookingController extends Controller
         $dayOfWeekOffset = ($startOfMonth->dayOfWeekIso - 1); // 0 (Mon) to 6 (Sun)
         $today = Carbon::today();
 
-        // Default tanggal terpilih: 3 hari ke depan dalam bulan ini
-        $defaultSelectedDate = $today->copy()->addDays(3);
-        if ($defaultSelectedDate->month !== $bookingMonth->month) {
-            $defaultSelectedDate = $today->copy();
+        // Ambil peta slot & ketersediaan studio
+        $scheduleMap = $this->getScheduleMap();
+
+        // Cari tanggal default terdekat yang masih memiliki slot tersedia
+        $defaultSelectedDate = $today->copy()->addDay();
+        for ($i = 1; $i <= 14; $i++) {
+            $candDate = $today->copy()->addDays($i);
+            $candDateStr = $candDate->format('Y-m-d');
+            $slotsForCand = $this->getSlotsForDate($candDateStr, $scheduleMap);
+            $hasAvail = collect($slotsForCand)->contains('is_available', true);
+            if ($hasAvail) {
+                $defaultSelectedDate = $candDate;
+                break;
+            }
         }
+
+        $initialSlots = $this->getSlotsForDate($defaultSelectedDate->format('Y-m-d'), $scheduleMap);
+        $firstAvailableSlot = collect($initialSlots)->firstWhere('is_available', true);
+        $initialSelectedSlot = $firstAvailableSlot ? $firstAvailableSlot['time'] : ($initialSlots[0]['time'] ?? '09.00');
 
         return view('pemesanan', compact(
             'packages',
@@ -143,7 +298,10 @@ class BookingController extends Controller
             'daysInMonth',
             'dayOfWeekOffset',
             'today',
-            'defaultSelectedDate'
+            'defaultSelectedDate',
+            'scheduleMap',
+            'initialSlots',
+            'initialSelectedSlot'
         ));
     }
 
@@ -154,13 +312,29 @@ class BookingController extends Controller
     {
         $validated = $request->validate([
             'package_id' => 'required|string',
-            'session_date' => 'nullable|string',
-            'session_time' => 'nullable|string',
-            'nama_lengkap' => 'required|string|max:255',
+            'session_date' => 'required|date',
+            'session_time' => 'required|string',
+            'nama_lengkap' => 'required|string|min:3|max:255',
             'email' => 'required|email|max:255',
-            'whatsapp' => 'required|string|max:50',
-            'lokasi' => 'nullable|string|max:255',
-            'catatan' => 'nullable|string',
+            'whatsapp' => 'required|string|min:8|max:50',
+            'lokasi' => 'required|string|min:3|max:255',
+            'catatan' => 'nullable|string|max:1000',
+            'persetujuan' => 'required|accepted',
+        ], [
+            'package_id.required' => 'Silakan pilih paket foto terlebih dahulu.',
+            'session_date.required' => 'Tanggal sesi foto wajib dipilih.',
+            'session_date.date' => 'Format tanggal sesi tidak valid.',
+            'session_time.required' => 'Waktu / slot sesi wajib dipilih.',
+            'nama_lengkap.required' => 'Nama lengkap pemesan wajib diisi.',
+            'nama_lengkap.min' => 'Nama lengkap minimal 3 karakter.',
+            'email.required' => 'Alamat email aktif wajib diisi.',
+            'email.email' => 'Format alamat email tidak valid (contoh: nama@email.com).',
+            'whatsapp.required' => 'Nomor WhatsApp aktif wajib diisi.',
+            'whatsapp.min' => 'Nomor WhatsApp minimal 8 digit.',
+            'lokasi.required' => 'Lokasi sesi foto wajib diisi.',
+            'lokasi.min' => 'Lokasi sesi minimal 3 karakter.',
+            'persetujuan.required' => 'Persetujuan Syarat & Ketentuan wajib dicentang.',
+            'persetujuan.accepted' => 'Anda harus mencentang persetujuan Kebijakan Privasi dan Syarat Pemesanan sebelum melanjutkan.',
         ]);
 
         $packageSlug = $validated['package_id'];
@@ -213,7 +387,50 @@ class BookingController extends Controller
         // Konversi ke format Y-m-d bila dalam string bahasa
         $sessionDateSql = date('Y-m-d', strtotime($rawSessionDate) ?: strtotime('+7 days'));
 
-        $rawTimeSlot = ($validated['session_time'] ?? '15.30').'–17.00 WIB · 90 menit';
+        $defaultDurations = [
+            'birthday' => 60,
+            'graduation' => 60,
+            'family-session' => 90,
+            'prewedding' => 180,
+        ];
+        $fallbackDuration = $defaultDurations[$packageSlug] ?? 90;
+        $durationMinutes = $package ? ($package->duration_minutes ?: $fallbackDuration) : $fallbackDuration;
+        $sessionTimeInput = trim($validated['session_time'] ?? '15.30');
+
+        if (preg_match('/^(\d{1,2}[:.]\d{2})\s*[–-]\s*(\d{1,2}[:.]\d{2})/u', $sessionTimeInput, $matches)) {
+            $startTime = str_replace(':', '.', $matches[1]);
+            $endTime = str_replace(':', '.', $matches[2]);
+            $rawTimeSlot = "{$startTime}–{$endTime} WIB · {$durationMinutes} menit";
+        } else {
+            $startTime = str_replace(':', '.', $sessionTimeInput);
+            if (preg_match('/^(\d{1,2})[:.](\d{2})$/', $startTime, $timeParts)) {
+                $startHour = (int) $timeParts[1];
+                $startMin = (int) $timeParts[2];
+                $totalMinutes = ($startHour * 60) + $startMin + $durationMinutes;
+                $endHour = floor($totalMinutes / 60) % 24;
+                $endMin = $totalMinutes % 60;
+                $endTime = sprintf('%02d.%02d', $endHour, $endMin);
+                $rawTimeSlot = "{$startTime}–{$endTime} WIB · {$durationMinutes} menit";
+            } else {
+                $endTime = '17.00';
+                $rawTimeSlot = "{$startTime}–{$endTime} WIB · {$durationMinutes} menit";
+            }
+        }
+
+        $startSql = (strlen($startTime) <= 5 ? str_replace('.', ':', $startTime).':00' : '15:30:00');
+        $endSql = (strlen($endTime) <= 5 ? str_replace('.', ':', $endTime).':00' : '17:00:00');
+
+        // Pastikan slot tidak sedang diblokir oleh admin
+        $isBlockedSlot = StudioSlot::whereDate('date', $sessionDateSql)
+            ->where('start_time', 'like', substr($startSql, 0, 5).'%')
+            ->where('type', 'blocked')
+            ->exists();
+
+        if ($isBlockedSlot) {
+            return back()->withErrors([
+                'session_time' => 'Slot waktu yang Anda pilih sedang diblokir oleh studio. Silakan pilih jam atau tanggal lain.',
+            ])->withInput();
+        }
 
         // Proteksi Idempotency / Anti-Duplicate Submission:
         // Jika pelanggan yang sama baru saja mengirim pesanan paket dan tanggal yang sama dalam 30 detik terakhir, gunakan pesanan tersebut
@@ -246,6 +463,31 @@ class BookingController extends Controller
                 'session_status' => 'Permintaan',
                 'payment_status' => 'Belum dibayar',
             ]);
+
+            // Sinkronkan ke StudioSlot agar langsung terdaftar di kalender admin
+            $startSql = (strlen($startTime) <= 5 ? str_replace('.', ':', $startTime).':00' : '15:30:00');
+            $endSql = (strlen($endTime) <= 5 ? str_replace('.', ':', $endTime).':00' : '17:00:00');
+
+            $matchingSlot = StudioSlot::whereDate('date', $sessionDateSql)
+                ->where('start_time', 'like', substr($startSql, 0, 5).'%')
+                ->first();
+
+            if ($matchingSlot) {
+                $matchingSlot->update([
+                    'type' => 'booked',
+                    'order_id' => $order->id,
+                    'note' => $packageName.' - '.$customer->name,
+                ]);
+            } else {
+                StudioSlot::create([
+                    'date' => $sessionDateSql,
+                    'start_time' => $startSql,
+                    'end_time' => $endSql,
+                    'type' => 'booked',
+                    'order_id' => $order->id,
+                    'note' => $packageName.' - '.$customer->name,
+                ]);
+            }
         }
 
         // Simpan juga ke session untuk aliran UX instan tanpa login
@@ -401,19 +643,19 @@ class BookingController extends Controller
             $order = Order::with('package')->where('order_code', $orderCode)->orWhere('id', $orderCode)->first();
         }
 
-        $data = null;
         if (! $order) {
-            $data = session('last_booking');
-            if ($data && isset($data['order_code'])) {
-                $order = Order::with('package')->where('order_code', $data['order_code'])->first();
+            $sessionBooking = session('last_booking');
+            if ($sessionBooking && isset($sessionBooking['order_code'])) {
+                $order = Order::with('package')->where('order_code', $sessionBooking['order_code'])->first();
             }
         }
 
-        if (! $order && ! $data) {
+        if (! $order) {
             $order = Order::with('package')->latest()->first();
         }
 
-        if ($order && ! $data) {
+        $data = null;
+        if ($order) {
             $packageImage = 'paket-family.jpg';
             if ($order->package && ! empty($order->package->image)) {
                 $packageImage = $order->package->image;
@@ -454,15 +696,50 @@ class BookingController extends Controller
                 'whatsapp' => $order->customer_whatsapp,
                 'lokasi' => $order->location,
                 'catatan' => $order->customer_notes,
+                'payment_status' => $order->payment_status,
+                'internal_notes' => $order->internal_notes,
             ];
+        } else {
+            $data = session('last_booking', [
+                'order_code' => 'CH-2026-001',
+                'invoice_number' => 'INV-CH-2026-001',
+                'package_name' => 'Cerita Keluarga',
+                'package_price' => 'Rp2.450.000',
+                'nama_lengkap' => 'Pelanggan',
+                'payment_status' => 'Belum dibayar',
+                'internal_notes' => null,
+            ]);
         }
 
         $metode = $request->query('metode', 'transfer');
         $isSubmitted = $request->query('status') === 'success' || session()->has('submitted_payment');
 
+        // Deteksi apakah pesanan berstatus Perlu Perbaikan Bukti
+        $isNeedsRevision = false;
+        $revisionNote = null;
+        $previousPayment = null;
+
+        if ($order) {
+            $latestPayment = $order->payments()->latest('id')->first();
+            $payStatusLower = strtolower($order->payment_status ?? '');
+            $payRecStatusLower = $latestPayment ? strtolower($latestPayment->status ?? '') : '';
+
+            if (in_array($payStatusLower, ['perlu perbaikan', 'perlu-perbaikan']) || in_array($payRecStatusLower, ['perlu perbaikan', 'perlu-perbaikan'])) {
+                $isNeedsRevision = true;
+                $revisionNote = $order->internal_notes ?: ($latestPayment ? $latestPayment->internal_review_notes : 'Bukti transfer tidak terbaca jelas atau nominal tidak sesuai. Mohon unggah kembali bukti transfer yang valid.');
+                $previousPayment = $latestPayment;
+
+                // Jika sedang dalam status perlu perbaikan, jangan kunci form sebagai submitted
+                if ($request->query('status') !== 'success') {
+                    $isSubmitted = false;
+                    session()->forget('submitted_payment');
+                }
+            }
+        }
+
         $submittedPayment = session('submitted_payment');
         if (! $submittedPayment && $isSubmitted) {
-            $latestPayment = Payment::latest()->first();
+            $latestPayment = $order ? $order->payments()->latest('id')->first() : Payment::latest('id')->first();
             if ($latestPayment) {
                 $submittedPayment = [
                     'nama_pengirim' => $latestPayment->sender_name,
@@ -476,7 +753,7 @@ class BookingController extends Controller
             }
         }
 
-        return view('konfirmasi-pembayaran', compact('data', 'metode', 'isSubmitted', 'submittedPayment'));
+        return view('konfirmasi-pembayaran', compact('data', 'metode', 'isSubmitted', 'submittedPayment', 'isNeedsRevision', 'revisionNote', 'previousPayment'));
     }
 
     /**
@@ -508,6 +785,17 @@ class BookingController extends Controller
 
         if (! $order) {
             $order = Order::latest()->first();
+        }
+
+        // Cek apakah ini pengiriman ulang bukti perbaikan
+        $isRevision = false;
+        if ($order) {
+            $payStatusLower = strtolower($order->payment_status ?? '');
+            $latestPay = $order->payments()->latest('id')->first();
+            $latestPayStatusLower = $latestPay ? strtolower($latestPay->status ?? '') : '';
+            if (in_array($payStatusLower, ['perlu perbaikan', 'perlu-perbaikan']) || in_array($latestPayStatusLower, ['perlu perbaikan', 'perlu-perbaikan'])) {
+                $isRevision = true;
+            }
         }
 
         // Simpan berkas bukti bila ada
@@ -546,6 +834,7 @@ class BookingController extends Controller
             // Update status pesanan
             $order->update([
                 'payment_status' => 'Bukti terkirim',
+                'internal_notes' => $isRevision ? 'Bukti perbaikan telah diunggah oleh pelanggan pada '.now()->format('d M Y H:i').'. Menunggu pemeriksaan ulang studio.' : $order->internal_notes,
             ]);
         }
 
@@ -561,7 +850,13 @@ class BookingController extends Controller
 
         session(['submitted_payment' => $submittedData]);
 
-        return redirect()->route('konfirmasi', ['status' => 'success'])
-            ->with('success', 'Bukti Anda sudah diterima oleh studio. Pantau hasil pemeriksaan melalui status pesanan.');
+        $successMessage = $isRevision
+            ? 'Bukti perbaikan pembayaran berhasil dikirimkan ke studio. Tim naro capture akan segera meninjau kembali.'
+            : 'Bukti Anda sudah diterima oleh studio. Pantau hasil pemeriksaan melalui status pesanan.';
+
+        return redirect()->route('konfirmasi', [
+            'order' => $order ? $order->order_code : '',
+            'status' => 'success',
+        ])->with('success', $successMessage);
     }
 }

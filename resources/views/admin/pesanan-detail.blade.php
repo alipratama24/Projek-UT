@@ -226,6 +226,10 @@
                                         Perbesar
                                     </div>
                                 </div>
+                            @elseif(!empty($order['proof_is_pdf']))
+                                <div style="position: relative; height: 180px; background: #F8FAFD; display:flex; flex-direction:column; align-items:center; justify-content:center; border-bottom:1px solid #E2E8F0; overflow:hidden;">
+                                    <iframe src="{{ $order['proof_file_url'] }}#toolbar=0" style="width: 100%; height: 100%; border: none;" title="{{ $order['proof_file_name'] }}"></iframe>
+                                </div>
                             @endif
                             <div style="padding: 10px 12px; display:flex; justify-content:space-between; align-items:center; font-size: 12px;">
                                 <div>
@@ -489,20 +493,40 @@
                         Batalkan Pesanan
                     </button>
 
-                    {{-- Hapus Permanen (tersembunyi, hanya muncul jika dibutuhkan — danger zone) --}}
-                    <details style="margin-top: 2px;">
-                        <summary style="font-size: 11px; color: #94A3B8; cursor: pointer; list-style: none; text-align: center; padding: 4px 0; user-select: none;">
-                            ▸ Zona Berbahaya
-                        </summary>
-                        <form action="{{ route('admin.pesanan.destroy', ['id' => $order['code']]) }}" method="POST" onsubmit="return confirm('Hapus pesanan {{ $order['code'] }} secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan.')" style="margin-top: 8px;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="admin-btn-outline btn-outline-danger w-full" style="font-size: 12px; display: flex; align-items: center; justify-content: center; gap: 5px;" title="Hapus permanen pesanan ini — tidak bisa dibatalkan">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4h6v2"></path></svg>
-                                Hapus Permanen (Duplikat / Keliru)
+                    {{-- Aksi Draft & Hapus Pesanan --}}
+                    @php
+                        $canDeleteOrDraft = !in_array($order['session_status'], ['Dikonfirmasi', 'Selesai']);
+                    @endphp
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 4px;">
+                        @if($canDeleteOrDraft)
+                            @if($order['session_status'] !== 'Draft')
+                                <form action="{{ route('admin.pesanan.draft', ['id' => $order['code']]) }}" method="POST" onsubmit="return confirm('Ubah status pesanan {{ $order['code'] }} menjadi Draft?')" style="margin: 0;">
+                                    @csrf
+                                    <button type="submit" class="admin-btn-outline" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 13px; font-weight: 500; padding: 9px 12px; color: #475569; background: #F8FAFC; border-color: #CBD5E1;">
+                                        Jadikan Draft
+                                    </button>
+                                </form>
+                            @else
+                                <button type="button" disabled class="admin-btn-outline" style="width: 100%; font-size: 13px; font-weight: 500; padding: 9px 12px; color: #94A3B8; background: #F1F5F9; border-color: #E2E8F0; cursor: not-allowed;">
+                                    Sudah Draft
+                                </button>
+                            @endif
+
+                            <form action="{{ route('admin.pesanan.destroy', ['id' => $order['code']]) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pesanan {{ $order['code'] }} secara permanen dari sistem? Tindakan ini tidak dapat dibatalkan.')" style="margin: 0;">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="admin-btn-outline btn-outline-danger" style="width: 100%; font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 9px 12px;" title="Hapus permanen pesanan ini">
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14H6L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg>
+                                    Hapus Pesanan
+                                </button>
+                            </form>
+                        @else
+                            <button type="button" disabled class="admin-btn-outline" style="grid-column: 1 / -1; font-size: 12px; padding: 8px 12px; color: #94A3B8; background: #F8FAFC; border-color: #E2E8F0; cursor: not-allowed; text-align: center;" title="Pesanan dengan status Dikonfirmasi atau Selesai tidak dapat dihapus / di-draft-kan">
+                                Sesi {{ $order['session_status'] }} terkunci (Tidak dapat dihapus / di-draft)
                             </button>
-                        </form>
-                    </details>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>

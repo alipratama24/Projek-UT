@@ -93,4 +93,106 @@ class ClientGalleryTest extends TestCase
         $response->assertSee('Budi Pratama');
         $response->assertSee('Momen Wisuda 01');
     }
+
+    public function test_home_page_karya_terbaru_shows_published_galleries_with_links(): void
+    {
+        $gallery = Gallery::create([
+            'slug' => 'potret-farah',
+            'title' => 'Potret Farah',
+            'client_name' => 'Farah Quinn',
+            'target_photos' => 10,
+            'status' => 'Diterbitkan',
+            'access_type' => 'Terbuka',
+            'cover_image' => 'work-2.jpg',
+        ]);
+
+        $response = $this->get('/');
+
+        $response->assertStatus(200);
+        $response->assertSee('Potret Farah');
+        $response->assertSee('Klien: Farah Quinn');
+        $response->assertSee('/galeri-klien?slug=potret-farah');
+    }
+
+    public function test_private_gallery_requires_pin_verification(): void
+    {
+        $gallery = Gallery::create([
+            'slug' => 'potret-farah-privat',
+            'title' => 'Potret Farah Privat',
+            'client_name' => 'Farah',
+            'target_photos' => 10,
+            'status' => 'Diterbitkan',
+            'access_type' => 'Privat',
+            'pin_code' => '5432',
+            'cover_image' => 'work-3.jpg',
+        ]);
+
+        GalleryPhoto::create([
+            'gallery_id' => $gallery->id,
+            'photo_path' => 'work-3.jpg',
+            'caption' => 'Foto Rahasia Farah 01',
+            'sort_order' => 1,
+        ]);
+
+        // 1. Akses pertama kali tanpa PIN -> Harus menampilkan layar proteksi PIN
+        $response = $this->get('/galeri-klien?slug=potret-farah-privat');
+        $response->assertStatus(200);
+        $response->assertSee('Buka Galeri Foto');
+        $response->assertSee('RUANG PRIBADI KLIEN');
+        $response->assertDontSee('Foto Rahasia Farah 01');
+
+        // 2. Submit PIN yang SALAH
+        $wrongPinResponse = $this->post('/galeri-klien/verify-pin', [
+            'gallery_id' => $gallery->id,
+            'pin_code' => '9999',
+        ]);
+        $wrongPinResponse->assertSessionHas('error');
+
+        // 3. Submit PIN yang BENAR (5432)
+        $correctPinResponse = $this->post('/galeri-klien/verify-pin', [
+            'gallery_id' => $gallery->id,
+            'pin_code' => '5432',
+        ]);
+        $correctPinResponse->assertRedirect(route('galeri-klien', ['slug' => 'potret-farah-privat']));
+        $correctPinResponse->assertSessionHas('success');
+
+        // 4. Setelah unlocked, akses kembali -> foto tampil dengan jelas
+        $unlockedResponse = $this->withSession(["gallery_unlocked_{$gallery->id}" => true])
+            ->get('/galeri-klien?slug=potret-farah-privat');
+        $unlockedResponse->assertStatus(200);
+        $unlockedResponse->assertSee('Foto Rahasia Farah 01');
+    }
+
+    public function test_admin_can_preview_private_gallery_without_pin(): void
+    {
+        $token = 'test-admin-token-gallery';
+        $admin = \App\Models\User::factory()->create([
+            'remember_token' => $token,
+        ]);
+
+        $gallery = Gallery::create([
+            'slug' => 'potret-farah-admin-preview',
+            'title' => 'Potret Farah Admin',
+            'client_name' => 'Farah',
+            'target_photos' => 5,
+            'status' => 'Diterbitkan',
+            'access_type' => 'Privat',
+            'pin_code' => '7788',
+            'cover_image' => 'work-4.jpg',
+        ]);
+
+        GalleryPhoto::create([
+            'gallery_id' => $gallery->id,
+            'photo_path' => 'work-4.jpg',
+            'caption' => 'Foto Farah Preview Admin',
+            'sort_order' => 1,
+        ]);
+
+        // Admin mengakses via cookie
+        $response = $this->withCookie('admin_auth_token', $token)
+            ->get('/galeri-klien?slug=potret-farah-admin-preview');
+
+        $response->assertStatus(200);
+        $response->assertSee('Foto Farah Preview Admin');
+    }
 }

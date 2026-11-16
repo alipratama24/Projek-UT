@@ -115,13 +115,20 @@
                             </td>
                             <td style="text-align: right; white-space: nowrap;">
                                 @php
-                                    $photoList = $g->photos->map(function ($p) {
-                                        $url = \Illuminate\Support\Str::startsWith($p->photo_path, ['http://', 'https://'])
-                                            ? $p->photo_path
-                                            : asset('storage/' . $p->photo_path);
+                                    $photoList = $g->photos->map(function ($p, $pIdx) {
+                                        $src = $p->photo_path;
+                                        if (!\Illuminate\Support\Str::startsWith($src, ['http://', 'https://'])) {
+                                            if (file_exists(public_path('images/' . $src))) {
+                                                $src = asset('images/' . $src);
+                                            } elseif (\Illuminate\Support\Facades\Storage::disk('public')->exists($src) || file_exists(public_path('storage/' . $src))) {
+                                                $src = asset('storage/' . $src);
+                                            } else {
+                                                $src = asset('images/work-' . (($pIdx % 6) + 1) . '.jpg');
+                                            }
+                                        }
                                         return [
                                             'id' => $p->id,
-                                            'url' => $url,
+                                            'url' => $src,
                                             'caption' => $p->caption,
                                         ];
                                     });

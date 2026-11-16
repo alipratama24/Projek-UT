@@ -18,11 +18,21 @@
 
         <div class="checkout-header">
             <div class="checkout-header__left">
-                <span class="eyebrow">SATU LANGKAH LAGI UNTUK CERITA ANDA</span>
-                <h1 class="checkout-header__title">Konfirmasi pembayaran.</h1>
+                @if(!empty($isNeedsRevision))
+                    <span class="eyebrow" style="color:#DC2626; font-weight:600;">PERLU PERBAIKAN BUKTI PEMBAYARAN</span>
+                    <h1 class="checkout-header__title" style="color:#1E293B;">Unggah perbaikan bukti pembayaran.</h1>
+                @elseif(isset($isSubmitted) && $isSubmitted)
+                    <span class="eyebrow">BUKTI TELAH DITERIMA</span>
+                    <h1 class="checkout-header__title">Bukti pembayaran telah terkirim.</h1>
+                @else
+                    <span class="eyebrow">SATU LANGKAH LAGI UNTUK CERITA ANDA</span>
+                    <h1 class="checkout-header__title">Konfirmasi pembayaran.</h1>
+                @endif
             </div>
             <p class="body-text checkout-header__desc">
-                @if(isset($isSubmitted) && $isSubmitted)
+                @if(!empty($isNeedsRevision))
+                    Studio meminta Anda mengunggah ulang bukti transfer untuk pesanan <strong>{{ $data['order_code'] }}</strong>. Silakan tinjau catatan instruksi dari studio di bawah dan unggah berkas bukti yang sesuai.
+                @elseif(isset($isSubmitted) && $isSubmitted)
                     Bukti Anda sudah diterima oleh studio. Pantau hasil pemeriksaan melalui status pesanan.
                 @else
                     Sudah melakukan transfer? Unggah struk dan lengkapi data pembayaran agar studio dapat meninjaunya.
@@ -46,7 +56,7 @@
             </div>
             <div class="step-indicator is-active">
                 <span class="step-icon-num">04</span>
-                <span class="step-text-active">{{ (isset($isSubmitted) && $isSubmitted) ? 'Bukti terkirim' : 'Unggah struk' }}</span>
+                <span class="step-text-active">{{ !empty($isNeedsRevision) ? 'Perbaikan bukti' : ((isset($isSubmitted) && $isSubmitted) ? 'Bukti terkirim' : 'Unggah struk') }}</span>
             </div>
             <div class="step-next-note">
                 Berikutnya: tinjauan studio
@@ -150,8 +160,28 @@
                 </div>
             </div>
         @else
-            {{-- FORMULIR KONFIRMASI PEMBAYARAN (SEBELUM DIKIRIM) --}}
+            {{-- FORMULIR KONFIRMASI PEMBAYARAN (SEBELUM DIKIRIM / REVISI) --}}
             <div class="checkout-box form-confirmation-card">
+                @if(!empty($isNeedsRevision))
+                    {{-- BANNER PERBAIKAN BUKTI DARI STUDIO --}}
+                    <div style="background: #FEF2F2; border: 1.5px solid #FCA5A5; border-radius: 8px; padding: 20px 24px; margin-bottom: 24px;">
+                        <div style="display: flex; align-items: flex-start; gap: 14px;">
+                            <div style="width: 32px; height: 32px; border-radius: 50%; background: #DC2626; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #FFFFFF; font-weight: bold; font-size: 16px;">!</div>
+                            <div>
+                                <strong style="color: #991B1B; font-size: 15px; display: block; margin-bottom: 6px;">Catatan Instruksi Perbaikan Bukti dari Studio naro capture:</strong>
+                                <p style="color: #7F1D1D; font-size: 13.5px; margin: 0; line-height: 1.6; background: #FFFFFF; border: 1px solid #FECACA; padding: 10px 14px; border-radius: 6px;">
+                                    {{ $revisionNote ?? 'Bukti transfer tidak terbaca jelas atau nominal tidak sesuai. Mohon unggah kembali berkas bukti transfer yang valid.' }}
+                                </p>
+                                @if(!empty($previousPayment) && !empty($previousPayment->file_original_name))
+                                    <div style="margin-top: 10px; font-size: 12px; color: #991B1B;">
+                                        Berkas sebelumnya: <strong>{{ $previousPayment->file_original_name }}</strong> (Perlu diganti dengan berkas baru)
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 {{-- BLOK TUJUAN PEMBAYARAN: TRANSFER BANK --}}
                 <div class="payment-destination-box">
                     <div class="destination-header">
@@ -212,11 +242,11 @@
 
                 <div class="form-section-title-wrap">
                     <div class="checkout-card-header">
-                        <h2 class="card-title">Unggah bukti pembayaran</h2>
+                        <h2 class="card-title">{{ !empty($isNeedsRevision) ? 'Unggah berkas perbaikan bukti pembayaran' : 'Unggah bukti pembayaran' }}</h2>
                         <span class="form-required-note">* Wajib diisi</span>
                     </div>
                     <p class="body-text">
-                        Setelah berhasil melakukan transfer ke rekening di atas, unggah struk atau tangkapan layar bukti transfer di bawah ini.
+                        {{ !empty($isNeedsRevision) ? 'Silakan pilih dan unggah berkas bukti transfer baru yang lebih jelas sesuai catatan instruksi dari studio.' : 'Setelah berhasil melakukan transfer ke rekening di atas, unggah struk atau tangkapan layar bukti transfer di bawah ini.' }}
                     </p>
                 </div>
 
@@ -363,8 +393,8 @@
 
                     {{-- Tombol Aksi --}}
                     <div class="form-actions-wrap">
-                        <button type="submit" class="btn btn--fill btn--block btn--lg" id="btnSubmitPayment">
-                            <span id="btnSubmitText">Kirim Konfirmasi Pembayaran</span>
+                        <button type="submit" class="btn btn--fill btn--block btn--lg" id="btnSubmitPayment" style="{{ !empty($isNeedsRevision) ? 'background:#DC2626; border-color:#DC2626;' : '' }}">
+                            <span id="btnSubmitText">{{ !empty($isNeedsRevision) ? 'Kirim Bukti Perbaikan' : 'Kirim Konfirmasi Pembayaran' }}</span>
                             <span id="btnSubmitArrow">@include('partials.arrow')</span>
                         </button>
                         <p class="sending-footnote d-none" id="sendingFootnote">

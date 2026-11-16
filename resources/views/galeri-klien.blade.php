@@ -33,6 +33,56 @@
         <hr class="divider">
     </section>
 
+    {{-- FEEDBACK NOTICE (SUCCESS / ERROR) --}}
+    @if(session('success'))
+        <div style="max-width: 1200px; margin: 0 auto 20px; padding: 14px 20px; background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 8px; color: #065F46; font-size: 14px;">
+            <strong>Berhasil:</strong> {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div style="max-width: 1200px; margin: 0 auto 20px; padding: 14px 20px; background: #FEF2F2; border: 1px solid #FECACA; border-radius: 8px; color: #991B1B; font-size: 14px;">
+            <strong>Perhatian:</strong> {{ session('error') }}
+        </div>
+    @endif
+
+    @if(!empty($isLocked))
+        {{-- LAYAR VERIFIKASI PIN GALERI PRIBADI --}}
+        <section class="gallery-content-section" style="padding-top: 40px; padding-bottom: 80px;">
+            <div style="max-width: 480px; margin: 0 auto; background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 12px; padding: 40px 32px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05); text-align: center;">
+                <div style="width: 56px; height: 56px; background: #EEF2F6; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: #253247;">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                </div>
+
+                <span class="eyebrow" style="color: #6E7A8B; letter-spacing: 0.1em; font-size: 11px;">RUANG PRIBADI KLIEN</span>
+                <h2 style="font-size: 22px; font-weight: 600; color: #1E293B; margin: 8px 0 12px;">{{ $gallery->title ?? 'Galeri Privat' }}</h2>
+                <p style="font-size: 13px; color: #64748B; line-height: 1.6; margin-bottom: 24px;">
+                    Galeri ini diproteksi untuk menjaga privasi sesi foto Anda. Silakan masukkan <strong>Kode PIN</strong> yang diberikan oleh studio untuk membuka akses.
+                </p>
+
+                <form action="{{ route('galeri-klien.verify-pin') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="gallery_id" value="{{ $gallery->id }}">
+                    
+                    <div style="margin-bottom: 20px;">
+                        <input type="password" name="pin_code" placeholder="Masukkan Kode PIN" required autofocus
+                            style="width: 100%; height: 48px; text-align: center; font-size: 18px; letter-spacing: 4px; font-weight: 600; border: 1.5px solid #CBD5E1; border-radius: 6px; outline: none; transition: border-color 0.2s;"
+                            onfocus="this.style.borderColor='#3B5B9A'" onblur="this.style.borderColor='#CBD5E1'">
+                    </div>
+
+                    <button type="submit" class="btn btn--fill btn--block" style="background: #3B5B9A; color: #FFF; height: 46px; font-size: 14px; font-weight: 500;">
+                        Buka Galeri Foto @include('partials.arrow')
+                    </button>
+                </form>
+
+                <div style="margin-top: 24px; padding-top: 20px; border-top: 1px solid #F1F5F9; font-size: 12px; color: #94A3B8;">
+                    Lupa PIN Anda? Silakan hubungi admin di <a href="mailto:hello@narocapture.com" style="color: #3B5B9A; text-decoration: underline;">hello@narocapture.com</a>
+                </div>
+            </div>
+        </section>
+    @else
     {{-- ISI GALERI (FIGMA 105:45347) --}}
     <section class="gallery-content-section">
         {{-- Banner Panduan Status --}}
@@ -51,7 +101,7 @@
         {{-- Sampul dan Rincian Galeri --}}
         <div class="gallery-header-cover-grid">
             <div class="gallery-cover-img-wrap">
-                <img src="{{ asset('images/work-1.jpg') }}" alt="Foto Sampul Keluarga" class="gallery-cover-img">
+                <img src="{{ $coverImage ?? asset('images/work-1.jpg') }}" alt="{{ $data['package_name'] ?? 'Foto Sampul' }}" class="gallery-cover-img">
             </div>
 
             <div class="gallery-meta-card">
@@ -217,6 +267,7 @@
             </div>
         </div>
     </div>
+    @endif
 
     {{-- TOAST NOTIFICATION --}}
     <div id="galleryToast" class="gallery-toast" role="status" aria-live="polite">

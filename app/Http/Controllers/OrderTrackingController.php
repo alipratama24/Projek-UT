@@ -35,17 +35,21 @@ class OrderTrackingController extends Controller
         $maskedPhone = '-';
 
         if ($order) {
+            $payStatusLower = strtolower($order->payment_status ?? '');
+            $latestPay = $order->payments()->latest('id')->first();
+            $latestPayStatusLower = $latestPay ? strtolower($latestPay->status ?? '') : '';
+
             if ($manualStatus) {
                 $statusKey = $manualStatus;
             } elseif ($order->session_status === 'Dibatalkan') {
                 $statusKey = 'dibatalkan';
             } elseif ($order->session_status === 'Selesai') {
                 $statusKey = 'sesi-selesai';
-            } elseif ($order->payment_status === 'Perlu perbaikan') {
+            } elseif (in_array($payStatusLower, ['perlu perbaikan', 'perlu-perbaikan']) || in_array($latestPayStatusLower, ['perlu perbaikan', 'perlu-perbaikan'])) {
                 $statusKey = 'perbaikan-bukti';
             } elseif ($order->session_status === 'Dikonfirmasi') {
                 $statusKey = 'dikonfirmasi';
-            } elseif ($order->payment_status === 'Bukti terkirim') {
+            } elseif (in_array($payStatusLower, ['bukti terkirim', 'bukti-terkirim']) || in_array($latestPayStatusLower, ['bukti terkirim', 'bukti-terkirim'])) {
                 $statusKey = 'sedang-diperiksa';
             } else {
                 $statusKey = 'menunggu-pembayaran';

@@ -36,8 +36,12 @@
                     </div>
 
                     @if(!empty($payment['is_image']))
-                        <div class="admin-doc-preview-box" style="padding: 16px; background: #fafbfc; border: 1px solid #e1e7f0; display: flex; align-items: center; justify-content: center; min-height: 240px;">
-                            <img src="{{ $payment['file_path'] }}" alt="{{ $payment['file_name'] }}" style="max-height: 290px; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.08);">
+                        <div class="admin-doc-preview-box" style="padding: 16px; background: #fafbfc; border: 1px solid #e1e7f0; display: flex; align-items: center; justify-content: center; min-height: 260px;">
+                            <img src="{{ $payment['file_path'] }}" alt="{{ $payment['file_name'] }}" style="max-height: 420px; max-width: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); cursor: pointer;" onclick="window.open('{{ $payment['file_path'] }}', '_blank')" title="Klik untuk membuka ukuran penuh" onerror="if(this.dataset.tried!=='1'){this.dataset.tried='1'; this.src='{{ $payment['storage_url'] ?? '' }}';}">
+                        </div>
+                    @elseif(!empty($payment['is_pdf']))
+                        <div class="admin-doc-preview-box" style="padding: 0; background: #fafbfc; border: 1px solid #e1e7f0; border-radius: 6px; overflow: hidden; min-height: 440px;">
+                            <iframe src="{{ $payment['file_path'] }}#toolbar=1" style="width: 100%; height: 460px; border: none; display: block;" title="{{ $payment['file_name'] }}"></iframe>
                         </div>
                     @else
                         <div class="admin-doc-preview-box">
@@ -56,9 +60,14 @@
                         </div>
                     @endif
 
-                    <a href="{{ $payment['file_path'] }}" target="_blank" rel="noopener noreferrer" class="admin-btn-outline" style="text-decoration: none; text-align: center; display: block;">
-                        Buka berkas di tab baru ↗
-                    </a>
+                    <div style="display: flex; gap: 10px; margin-top: 12px;">
+                        <a href="{{ $payment['file_path'] }}" target="_blank" rel="noopener noreferrer" class="admin-btn-outline" style="text-decoration: none; text-align: center; flex: 1;">
+                            Buka berkas di tab baru ↗
+                        </a>
+                        <a href="{{ $payment['file_path'] }}" download="{{ $payment['file_name'] }}" class="admin-btn-outline" style="text-decoration: none; text-align: center; flex: 1;">
+                            Unduh dokumen ↓
+                        </a>
+                    </div>
                 @else
                     {{-- TAMPILAN NO DATA / TIDAK ADA BERKAS TANPA TOMBOL BUKA BERKAS --}}
                     <div class="admin-doc-preview-box" style="background: #FAFBFC; border: 1.5px dashed #CBD5E1; min-height: 260px;">
