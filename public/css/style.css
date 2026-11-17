@@ -5124,7 +5124,9 @@ body:has(.gallery-page) .btn--outline-light:hover {
 .admin-doc-preview-box {
     background: #F5F8FF;
     border-radius: 8px;
-    height: 322px;
+    height: auto;
+    min-height: 260px;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -5132,6 +5134,15 @@ body:has(.gallery-page) .btn--outline-light:hover {
     gap: 16px;
     padding: 36px;
     text-align: center;
+    box-sizing: border-box;
+}
+
+.admin-doc-preview-box img {
+    max-width: 100%;
+    max-height: 420px;
+    object-fit: contain;
+    border-radius: 6px;
+    display: block;
 }
 
 .doc-preview-title {
