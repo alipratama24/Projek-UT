@@ -340,11 +340,15 @@ img {
     padding-bottom: 16px;
     padding-top: 4px;
     -webkit-overflow-scrolling: touch;
-    scrollbar-width: none; /* Firefox */
+    scrollbar-width: none;
+    /* Firefox */
 }
+
 .packages--swipe::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
+    display: none;
+    /* Chrome/Safari */
 }
+
 .packages--swipe .package {
     flex: 0 0 300px;
     min-width: 290px;
@@ -360,6 +364,7 @@ img {
     gap: 16px;
     margin-top: 20px;
 }
+
 .packages-nav__btn {
     background: var(--white);
     border: 1px solid var(--line);
@@ -373,16 +378,19 @@ img {
     color: var(--ink);
     transition: background 0.15s, border-color 0.15s;
 }
+
 .packages-nav__btn:hover {
     background: var(--tint);
     border-color: var(--blue);
     color: var(--blue);
 }
+
 .packages-nav__dots {
     display: flex;
     align-items: center;
     gap: 6px;
 }
+
 .pkg-dot {
     width: 7px;
     height: 7px;
@@ -391,6 +399,7 @@ img {
     cursor: pointer;
     transition: background 0.2s, transform 0.2s;
 }
+
 .pkg-dot.is-active {
     background: var(--blue);
     transform: scale(1.35);
